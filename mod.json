@@ -1,0 +1,16 @@
+{
+    "id": "rgoverloaded",
+    "name": "Overloaded",
+    "author": ["RGBeet"],
+	"description": "A stupidly oresome Balatro mod.",
+    "prefix": "rgol",
+    "main_file": "overloaded.lua",
+    "badge_colour": "F6FF60",
+	"badge_text_colour": "3B3B3B",
+	"dependencies": [
+        "Steamodded (>=1.0.0~BETA-0408c)",
+		"MadLib (==1.0.0)"
+    ],
+    "version": "1.1.0",
+    "priority": 200
+}

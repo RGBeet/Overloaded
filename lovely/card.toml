@@ -1,0 +1,50 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 1
+
+# Redirect to new leveling up function
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''for name, parameter in pairs(SMODS.Scoring_Parameters) do
+        if G.GAME.hands[hand][name] then parameter:level_up_hand(amount, G.GAME.hands[hand]) end
+    end'''
+position = 'at'
+payload = '''Overloaded.Funcs.level_up_parameters(card, G.GAME.hands[hand], amount)'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''G.GAME.hands[cfg.hand_type].level,localize(cfg.hand_type, 'poker_hands'), G.GAME.hands[cfg.hand_type].l_mult, G.GAME.hands[cfg.hand_type].l_chips,'''
+position = 'at'
+payload = '''G.GAME.hands[cfg.hand_type].level,localize(cfg.hand_type, 'poker_hands'), Overloaded.Funcs.get_planet_mult(cfg), Overloaded.Funcs.get_planet_chips(cfg),'''
+match_indent = true
+
+
+# Allow for overriding the rarity of a Joker (stupid, I know!)
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''(self.ability.set == 'Joker' and {G.C.RARITY[self.config.center.rarity]}) or'''
+position = 'at'
+payload = '''(self.ability.set == 'Joker' and {G.C.RARITY[Overloaded.Funcs.get_rarity(self, card)]}) or'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+pattern = '''if AUT.card_type == 'Joker' or (AUT.badges and AUT.badges.force_rarity) then card_type = SMODS.Rarity:get_rarity_badge(card.config.center.rarity) end'''
+position = 'at'
+payload = '''if AUT.card_type == 'Joker' or (AUT.badges and AUT.badges.force_rarity) then card_type = SMODS.Rarity:get_rarity_badge(Overloaded.Funcs.get_rarity(card, card)) end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''(_c.set == 'Joker' and G.C.RARITY[_c.rarity]) or'''
+position = 'at'
+payload = '''(_c.set == 'Joker' and G.C.RARITY[card.ability.override_rarity or _c.rarity]) or'''
+match_indent = true

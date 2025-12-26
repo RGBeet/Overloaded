@@ -175,7 +175,7 @@ return {
                 }
             },
             rgol_modified_suit = {
-                title = { 'Modified Rank' },
+                title = { 'Modified Suit' },
                 text = {
                     "This card has a",
                     "{C:attention}modified{} suit value",

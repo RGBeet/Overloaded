@@ -36,8 +36,6 @@ function MadLib.is_rank(card, id, bypass_rankless, base_id)
     return result
 end
 
-Overloaded.Funcs.joker_check_rank = MadLib.joker_check_rank
-
 -- Gets the # of empty slots - useful for editing.
 function MadLib.get_empty_slots(area)
     if not area then return 0 end
@@ -407,11 +405,25 @@ end
     75, 100, 125, 150
 ]]
 
+local get_vals = function(card,default,x1,x2)
+	return card.ability[x2] 
+		or (type(card.ability.extra) == 'table' and card.ability.extra[x1]) 
+		or card.ability[x1] 
+		or default
+end
+
 function Overloaded.Funcs.get_joker_rank(card, default)
-	local ret = card.ability.override_rank or card.ability.rank or default
-	return ret
+	return get_vals(card, default, 'rank', 'override_rank')
 end
 
 function Overloaded.Funcs.get_joker_ranks(card, default)
-	return card.ability.override_ranks or card.ability.ranks or default
+	return get_vals(card, default, 'ranks', 'override_ranks')
+end
+
+function Overloaded.Funcs.get_joker_suit(card, default)
+	return get_vals(card, default, 'suit', 'override_suit')
+end
+
+function Overloaded.Funcs.get_joker_suits(card, default)
+	return get_vals(card, default, 'suits', 'override_suits')
 end

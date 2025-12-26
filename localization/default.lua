@@ -158,6 +158,8 @@ return {
             },
         },
         Other = {
+			k_rgol_strange      = "Strange",
+			k_rgol_overlocked   = "Overclocked",
             rgol_modified_rarity = {
                 title = { 'Modified Rarity' },
                 text = {

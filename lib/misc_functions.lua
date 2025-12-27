@@ -60,13 +60,13 @@ function Overloaded.Funcs.level_up_parameters(card, hand, amount)
     
     if card then
         if card.ability.planet_chips then 
-            print('Manipulating chip mod.')
+            print('Manipulating chips mod - ' .. tostring(hand.chips) .. ' -> ' .. tostring(MadLib.add(hand.chips, card.ability.planet_chips)))
             parameter_table['chips'] = nil
             hand.chips = MadLib.add(hand.chips, card.ability.planet_chips)
         end
         
-        if card.ability.planet_mod then 
-            print('Manipulating mult mod.')
+        if card.ability.planet_mult then 
+            print('Manipulating mult mod - ' .. tostring(hand.mult) .. ' -> ' .. tostring(MadLib.add(hand.mult, card.ability.planet_mult)))
             parameter_table['mult'] = nil
             hand.mult = MadLib.add(hand.mult, card.ability.planet_mult)
         end
@@ -107,16 +107,16 @@ end
 Overloaded.ValueAlter = {}
 
 Overloaded.ValueAlter.Values = {
-	['AddMult'] 		= { factor = 1, round = true },
-	['AddChips'] 		= { factor = 1, round = true },
-	['AddScore'] 		= { factor = 1, round = true },
-	['MultiMult'] 		= { factor = 1, level = 1, multiply = true },
-	['MultiChips'] 		= { factor = 0.8, level = 1, multiply = true },
-	['MultiScore'] 		= { factor = 0.8, level = 1, multiply = true },
-	['ExpMult'] 		= { factor = 0.5, level = 2, multiply = true },
-	['ExpChips'] 		= { factor = 0.5, level = 2, multiply = true },
-	['ExpScore'] 		= { factor = 0.5, level = 2, multiply = true },
-	['AddMoney'] 		= { factor = 1.5, round = true },
+	['AddMult'] 		= { factor = 1, round = true, a_val = true, mult = true},
+	['AddChips'] 		= { factor = 1, round = true, a_val = true, chips = true },
+	['AddScore'] 		= { factor = 1, round = true, a_val = true, score = true },
+	['MultiMult'] 		= { factor = 1, level = 1, x_val = true, mult = true, multiply = true },
+	['MultiChips'] 		= { factor = 0.8, level = 1, x_val = true, chips = true, multiply = true },
+	['MultiScore'] 		= { factor = 0.8, level = 1, x_val = true, score = true, multiply = true },
+	['ExpMult'] 		= { factor = 0.5, level = 2, e_val = true, mult = true, multiply = true },
+	['ExpChips'] 		= { factor = 0.5, level = 2, e_val = true, chips = true, multiply = true },
+	['ExpScore'] 		= { factor = 0.5, level = 2, e_val = true, score = true, multiply = true },
+	['AddMoney'] 		= { factor = 1.5, round = true, a_val = true, money = true },
 	['HandSize']		= { factor = 0.5, level = 1, round = true, type = 'hand_size'},
 	['PlayHands']		= { factor = 0.5, round = true },
 	['PlayDiscards'] 	= { factor = 0.5, round = true },
@@ -314,18 +314,22 @@ function Overloaded.Funcs.apply_percentage(base, percent)
     return MadLib.add(base, MadLib.multiply(MadLib.subtract(base, 1), MadLib.subtract(percent, 1)))
 end
 
-Overloaded.Funcs.loop_thru = function(card, t, div, prefix)
-    if not prefix then
-    end
+function Overloaded.Funcs.loop_thru(card, t, div, prefix, whitelist, blacklist, did_something)
+	did_something = did_something or false
     prefix = prefix or ''
+	if prefix == 'extra' then
+		print('LOOKING THROUGH EXTRA TABLE!')
+	end
     local data = nil
     for k, v in pairs(t) do
         if type(v) == 'table' then
-            prefix = prefix .. k
-            Overloaded.Funcs.loop_thru(card, t[k], div, prefix)
+            prefix = prefix .. '/' .. k
+			print(prefix)
+            did_something = did_something or Overloaded.Funcs.loop_thru(card, t[k], div, prefix, whitelist, blacklist)
         elseif type(v) == 'number' then
             local valid = nil
             local amt   = MadLib.deep_copy(t[k])
+			local pass 	= true
 
             if 
                 Overloaded.ValueAlter.Extras[card.config.center.key] 
@@ -341,14 +345,37 @@ Overloaded.Funcs.loop_thru = function(card, t, div, prefix)
                 data = Overloaded.ValueAlter.Conversions[k]
             end
 
-            if data and data.factor then
+			if data then
+				if whitelist then
+					MadLib.loop_func(whitelist, function(v1)
+						if not pass then return end
+						pass = (data[v1] ~= nil)
+					end)
+				end
+
+				if blacklist then
+					MadLib.loop_func(blacklist, function(v1)
+						if not pass then return end
+						pass = (data[v1] == nil)
+					end)
+				end
+
+				if pass then
+					if data.multiply then
+						pass = pass and MadLib.compare_numbers(t[k], 1) ~= 0 and MadLib.compare_numbers(t[k], 0) ~= 0 -- X1 means nothing
+					else
+						pass = pass and MadLib.compare_numbers(t[k], 0) ~= 0 -- +0 means nothing
+					end
+				end
+			end
+
+            if data and pass then
+				local factor = data.factor or 1
                 valid = (data.multiply == true and amt ~= 1) or (not data.multiply and amt ~= 0)
-                
-                if data.multiply then
-                end
+				did_something = true
 
                 if valid then
-                    local mult = data.factor * (div or 1)
+                    local mult = MadLib.multiply(factor, (div or 1))
                     --local v1 = MadLib.deep_copy(t[k])
 
                     if data.multiply then
@@ -366,16 +393,35 @@ Overloaded.Funcs.loop_thru = function(card, t, div, prefix)
                     --local v2 = MadLib.deep_copy(t[k])
                 
                     --print(k .. ' - ' .. tostring(v1) .. " -> " .. tostring(v2))
+				else
+					print('INVALID!')
                 end
             end
         end
     end
+	print('Did something for ' .. card.config.center.key .. '? ' .. (did_something and 'YES!' or 'NO!'))
+	return did_something
 end
+
+Overloaded.Lists.WhitelistRarities = {
+	1,
+	2,
+	3,
+	4,
+	'rgmc_unusual'
+}
 
 function Overloaded.Funcs.set_joker_rarity(card, new_rarity)
     local old_rarity = card.ability.override_rarity or card.config.center.rarity
-    card.ability.override_rarity = new_rarity
 
+	if not
+		MadLib.list_matches_one(Overloaded.Lists.WhitelistRarities, function(v) return old_rarity == v end)
+		and MadLib.list_matches_one(Overloaded.Lists.WhitelistRarities, function(v) return new_rarity == v end)
+	then
+		return false
+	end
+
+    card.ability.override_rarity = new_rarity
     print('Override rarity is now ' .. tostring(card.ability.override_rarity) .. '.')
     local new_value = MadLib.get_rarity_value(new_rarity)
     local old_value = MadLib.get_rarity_value(old_rarity)
@@ -397,6 +443,8 @@ function Overloaded.Funcs.set_joker_rarity(card, new_rarity)
     if tostring(card.ability.override_rarity) == tostring(card.config.center.rarity) then -- same rarity?
         card.ability.override_rarity = nil
     end
+
+	return true
 end
 
 --[[
@@ -426,4 +474,73 @@ end
 
 function Overloaded.Funcs.get_joker_suits(card, default)
 	return get_vals(card, default, 'suits', 'override_suits')
+end
+
+function Overloaded.Funcs.get_joker_hand(card, default)
+	return card.ability.override_poker_hand
+		or card.ability.type
+		or card.ability.poker_hand
+		or (type(card.ability.extra) == 'table' and card.ability.extra.poker_hand)
+		or default
+end
+
+function Overloaded.Funcs.get_joker_hands(card, default)
+	return card.ability.override_poker_hands
+		or card.ability.type
+		or card.ability.poker_hands
+		or (type(card.ability.extra) == 'table' and card.ability.extra.poker_hands)
+		or default
+end
+
+function Overloaded.Funcs.get_original_rank(card)
+    return get_vals(card, 'rank')
+end
+
+function Overloaded.Funcs.get_original_ranks(card)
+    return get_vals(card, 'ranks')
+end
+
+function Overloaded.Funcs.get_original_suit(card)
+    return get_vals(card, 'suit')
+end
+
+function Overloaded.Funcs.get_original_suits(card)
+    return get_vals(card, 'suits')
+end
+
+function Overloaded.Funcs.get_original_poker_hand(card)
+    if not card then return nil end
+    if card.ability.type then
+        return card.ability.type
+    elseif type(card.ability.extra) == 'table' then
+        return card.ability.extra.poker_hand
+    elseif card.ability.poker_hand then
+        return card.ability.poker_hand
+    end
+    return nil
+end
+
+function Overloaded.Funcs.get_original_poker_hands(card)
+    if not card then return nil end
+    if type(card.ability.extra) == 'table' then
+        return card.ability.extra.poker_hands
+    elseif card.ability.poker_hands then
+        return card.ability.poker_hands
+    end
+    return nil
+end
+
+function Overloaded.Funcs.get_rarity_localization(rarity)
+    local rarities 		= {"common", "uncommon", "rare", "legendary"}
+    local final_value 	= rarities[rarity] or rarity
+	return localize('k_' .. final_value)
+end
+
+function Overloaded.Funcs.get_bootstrap_calc(value1, value2)
+	return MadLib.multiply(value1, math.floor(MadLib.divide(MadLib.add((G.GAME.dollars or 0), (G.GAME.dollar_buffer or 0)), value2)))
+end
+
+function Overloaded.Funcs.modify_chip_values(card, value)
+
+
 end

@@ -2,6 +2,74 @@
 return {
 	descriptions = {
         Joker = {
+            j_rgol_syzygy = {
+                name = "Syzygy",
+                text = {
+                    "{C:planet}Planet{} cards have",
+                    "a {C:green}#1# in #2#{} chance",
+                    "of spawning with",
+                    "{C:attention}X#3#{} values"
+                }
+            },
+            j_rgol_lazzarone = {
+                name = "Lazzarone",
+                text = {
+                    "{C:attention}Jokers{} have",
+                    "a {C:green}#1# in #2#{} chance",
+                    "of spawning with",
+                    "the {V:1}#3#{} rarity"
+                    
+                }
+            },
+            j_rgol_blockchain = {
+                name = "Blockchain",
+                text = {
+                    "Apply {C:chips}+X#1#{} to",
+                    "all {C:attention}chip values{}",
+                    "for every {C:money}$#2#{} held",
+                    "{C:inactive}(Currently {C:chips}+X#3#{C:inactive})"
+                }
+            },
+            j_rgol_ladybird = {
+                name = "Ladybird",
+                text = {
+                    "Scoring {C:attention}#1#{} cards",
+                    "give {C:attention}X#2#{} values"
+                }
+            },
+            -- fixes
+            j_greedy_joker = {
+                name = "Greedy Joker",
+                text = {
+                    "Played cards with",
+                    "{V:1}#2#{} suit give",
+                    "{C:mult}+#1#{} Mult when scored", 
+                }
+            },
+            j_lusty_joker = {
+                name = "Lusty Joker",
+                text = {
+                    "Played cards with",
+                    "{V:1}#2#{} suit give",
+                    "{C:mult}+#1#{} Mult when scored", 
+                }
+            },
+            j_wrathful_joker = {
+                name = "Wrathful Joker",
+                text = {
+                    "Played cards with",
+                    "{V:1}#2#{} suit give",
+                    "{C:mult}+#1#{} Mult when scored", 
+                }
+            },
+            j_gluttenous_joker = {
+                name = "Gluttonous Joker",
+                text = {
+                    "Played cards with",
+                    "{V:1}#2#{} suit give",
+                    "{C:mult}+#1#{} Mult when scored", 
+                }
+            },
             -- Override Rank compat
             j_scholar = {
                 name = "Scholar",
@@ -158,10 +226,8 @@ return {
             },
         },
         Other = {
-			k_rgol_strange      = "Strange",
-			k_rgol_overlocked   = "Overclocked",
             rgol_modified_rarity = {
-                title = { 'Modified Rarity' },
+                name = { 'Modified Rarity' },
                 text = {
                     "This card has a",
                     "{C:attention}modified{} rarity",
@@ -169,7 +235,7 @@ return {
                 }
             },
             rgol_modified_rank = {
-                title = { 'Modified Rank' },
+                name = { 'Modified Rank' },
                 text = {
                     "This card has a",
                     "{C:attention}modified{} rank value",
@@ -177,13 +243,57 @@ return {
                 }
             },
             rgol_modified_suit = {
-                title = { 'Modified Suit' },
+                name = { 'Modified Suit' },
                 text = {
                     "This card has a",
                     "{C:attention}modified{} suit value",
-                    "{C:inactive}({V:1}#1#{C:inactive} -> {V:2}#2#{C:inactive})"
+                    "{C:inactive}({C:attention}#1#{C:inactive} -> {C:attention}#2#{C:inactive})"
                 }
             },
+            rgol_modified_poker_hand = {
+                name = { 'Modified Poker Hand' },
+                text = {
+                    "This card has a",
+                    "{C:attention}modified{} suit value",
+                    "{C:inactive}({C:attention}#1#{C:inactive} -> {C:attention}#2#{C:inactive})"
+                }
+            },
+        },
+    },
+    misc = {
+        poker_hand_descriptions = {
+            rgol_infoak = {
+                "5 Infinity cards"
+            },
+            rgol_infinity_flush = {
+                "5 Infinity cards",
+                "of the same suit"
+            },
+            rgol_infinity_spectrum = {
+                "5 Infinity cards",
+                "of different suits"
+            },
+            rgol_nohand = {
+                "Oops, no possible hand!"
+            },
+            rgol_straight_house = {
+                "... How."
+            },
+            rgol_straight_flush_house = {
+                "... How."
+            },
+        },
+        poker_hands = {
+            rgol_infinity               = "Infinitum",
+            rgol_infinity_flush         = "Infinitus Fluxus",
+            rgol_infinity_spectrum      = "Infinitus Iris",
+            rgol_straight_house         = "Straight House",
+            rgol_straight_flush_house   = "Straight Flush House",
+            rgol_nohand                 = "No Hand",
+        },
+        dictionary = {
+			k_rgol_strange          = "Strange",
+			k_rgol_overclocked      = "Overclocked",
         },
     }
 }

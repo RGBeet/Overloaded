@@ -38,7 +38,10 @@ else
 end
 
 Overloaded.Lists.MoneyModKeys = {
-    ['dollars'] = 'add', ['money'] = 'add', ['x_money'] = 'mult'
+    ['dollars']     = 'add',
+    ['p_dollars']   = 'add',
+    ['h_dollars']   = 'add',
+    ['money']       = 'add',
 }
 
 MadLib.loop_table(SMODS.Ranks, function(k,v)

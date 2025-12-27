@@ -18,6 +18,7 @@ local sum = {
         end
         return G.GAME and G.GAME.rank_unlocks and G.GAME.rank_unlocks[self.config.key]
     end,
+    quantum_rank = true
 }
 
 -- Infinity: Counts as all ranks played and held in hand (Moved to Overclocked)
@@ -40,6 +41,7 @@ local infinity = {
         end
         return G.GAME and G.GAME.rank_unlocks and G.GAME.rank_unlocks[self.config.key]
     end,
+    quantum_rank = true
 }
 
 -- Phi/Golden Ratio: 1.618. Counts as a Fibonacci number.
@@ -62,4 +64,5 @@ local phi = {
         end
         return G.GAME and G.GAME.rank_unlocks and G.GAME.rank_unlocks[self.config.key]
     end,
+    quantum_rank = true
 }

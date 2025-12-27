@@ -7,7 +7,7 @@ SMODS.Joker:take_ownership('hack', {
             and not context.repetition_only
         then
 		    if MadLib.list_matches_one(Overloaded.Lists.Hack, function(v)
-                return MadLib.is_rank(context.other_card,SMODS.Ranks[v].id)
+                return MadLib.is_rank(context.other_card,v)
             end) then
 				return {
 				    message = localize('k_again_ex'),
@@ -74,7 +74,7 @@ SMODS.Joker:take_ownership('8_ball', {
             and (#G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit)
         then
             if
-                Overloaded.Funcs.joker_check_rank(context.other_card, card, card.ability.rank or '8')
+                MadLib.joker_check_rank(context.other_card, card, card.ability.rank or '8')
                 and SMODS.pseudorandom_probability(card, '8_ball', 1, card.ability.extra)
             then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
@@ -108,7 +108,7 @@ SMODS.Joker:take_ownership('scholar', {
         if 
             context.individual 
             and context.cardarea == G.play
-            and Overloaded.Funcs.joker_check_rank(context.other_card, card, 'Ace')
+            and MadLib.joker_check_rank(context.other_card, card, 'Ace')
         then
             return { mult = card.ability.extra.mult, chips = card.ability.extra.chips }
         end
@@ -126,7 +126,7 @@ SMODS.Joker:take_ownership('sixth_sense', {
             if 
                 #context.full_hand == 1 
                 and context.destroy_card == context.full_hand[1] 
-                and Overloaded.Funcs.joker_check_rank(context.destroy_card, card, '6')
+                and MadLib.joker_check_rank(context.destroy_card, card, '6')
                 and G.GAME.current_round.hands_played == 0 
             then
                 if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
@@ -161,7 +161,7 @@ SMODS.Joker:take_ownership('baron', {
             context.individual
             and context.cardarea == G.hand 
             and not context.end_of_round 
-            and Overloaded.Funcs.joker_check_rank(context.other_card, card, 'King')
+            and MadLib.joker_check_rank(context.other_card, card, 'King')
             and context.other_card:get_quantity_value() > 0
         then
             return { x_mult = card.ability.extra }
@@ -172,11 +172,11 @@ SMODS.Joker:take_ownership('baron', {
 SMODS.Joker:take_ownership('cloud_9', {
     config = { extra = 1, rank = '9' },
     loc_vars = function(self, info_queue, card)
-        local nines = MadLib.get_card_count(G.playing_cards, function(v) return Overloaded.Funcs.joker_check_rank(v, card, '9') end)
+        local nines = MadLib.get_card_count(G.playing_cards, function(v) return MadLib.joker_check_rank(v, card, '9') end)
         return MadLib.collect_vars(card.ability.extra, localize(Overloaded.Funcs.get_joker_rank(card, '9'), 'ranks'), MadLib.multiply(card.ability.extra, nines))
     end,
     calc_dollar_bonus = function(self, card)
-        local nines = MadLib.get_card_count(G.playing_cards, function(v) return Overloaded.Funcs.joker_check_rank(v, card, '9') end)
+        local nines = MadLib.get_card_count(G.playing_cards, function(v) return MadLib.joker_check_rank(v, card, '9') end)
         return nines > 0 and MadLib.multiply(card.ability.extra, nines) or nil
     end
 }, true)
@@ -236,7 +236,7 @@ SMODS.Joker:take_ownership('wee', {
             and context.cardarea == G.play
             and not context.blueprint 
         then
-            if Overloaded.Funcs.joker_check_rank(context.other_card, card, '2') then
+            if MadLib.joker_check_rank(context.other_card, card, '2') then
                 card.ability.extra.chips = MadLib.add(card.ability.extra.chips, card.ability.extra.chip_mod)
                 return {
                     message = localize('k_upgrade_ex'),
@@ -362,7 +362,7 @@ SMODS.Joker:take_ownership('shoot_the_moon', {
             context.individual
             and context.cardarea == G.hand
             and (not context.end_of_round)
-            and Overloaded.Funcs.joker_check_rank(context.other_card, card, 'Queen')
+            and MadLib.joker_check_rank(context.other_card, card, 'Queen')
         then
             local amt = context.other_card:get_quantity_value()
             if amt > 0 then
@@ -1154,7 +1154,7 @@ SMODS.Joker:take_ownership('superposition', {
             and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit
         then
             if MadLib.list_matches_one(context.scoring_hand, function(v)
-                return Overloaded.Funcs.joker_check_rank(v, card, 'Ace')
+                return MadLib.joker_check_rank(v, card, 'Ace')
             end) then
                 MadLib.event({
                     func = (function()

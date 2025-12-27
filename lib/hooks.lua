@@ -6,26 +6,11 @@ function create_card(_type, area, legendary, _rarity, skip_materialize, soulable
     if (_type == 'Joker') then
         local modify_joker = SMODS.calculate_context({ ol_modifying_joker = true, other_card = card })
         if modify_joker then
-            print('Joker Modified.')
         end
-        --[[
-        print('Modify Joker')
-        Overloaded.Funcs.set_joker_rarity(card, 3)
-        if card.ability.rank then
-            card.ability.override_rank = '2'
-        end
-        if card.ability.type then
-            card.ability.override_poker_hand = 'High Card'
-        end
-        ]]
     elseif (_type == 'Planet') then
         local modify_planet = SMODS.calculate_context({ ol_modifying_planet = true, other_card = card })
         if modify_planet then
-            print('Planet Modified.')
         end
-        --print('Modify Planet')
-        --card.ability.planet_chips = 100
-        --card.ability.planet_mult  = 20
     end
 
     return card
@@ -106,11 +91,6 @@ function MadLib.set_joker_ui(card, info_queue, specific_vars, desc_nodes)
     return t
 end
 
-local is_rank_ref = MadLib.is_rank
-function MadLib.is_rank(card, id, bypass_rankless, base_id)
-    return is_rank_ref(card, id, bypass_rankless, base_id)
-end
-
 local joker_check_rank_ref = MadLib.joker_check_rank
 function MadLib.joker_check_rank(card, joker, default)
     if joker.ability.override_rank then return MadLib.is_rank(card, SMODS.Ranks[joker.ability.override_rank].id) end
@@ -181,4 +161,28 @@ Overloaded.temp = {}
 G.FUNCS.evaluate_play = function(e)
     Overloaded.temp.pitches = { mod = 0 }
     evaluate_play_ref(e)
+end
+
+local get_rank_values_ref = MadLib.get_rank_values
+function MadLib.get_rank_values(card)
+    local values = get_rank_values_ref(card)
+    -- Check Jokers first
+    MadLib.loop_func(G.jokers.cards, function(joker)
+        if not joker.modify_card_rank then return end -- cannot modify ranks
+        local ret = joker:modify_card_rank(joker, card, values)
+        if ret.rank then -- string
+            values[#values+1] = ret.rank
+        elseif ret.ranks then -- table
+            MadLib.loop_func(ret.ranks, function(v2) values[#values+1] = v2; end)
+        end
+    end)
+    return values
+end
+
+local highest_ref = get_highest
+function get_highest(hand)
+	if G.GAME.low_card_active then
+		return Overloaded.Funcs.get_lowest(hand)
+	end
+	return highest_ref(hand)
 end

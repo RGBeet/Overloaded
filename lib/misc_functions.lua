@@ -1,39 +1,8 @@
-function Overloaded.Funcs.get_quantum_rank_pass(card,id)
-    return false
-end
-
-if Madcap then
-    local get_quantum_rank_ref = Overloaded.Funcs.get_quantum_rank_pass
-
-    function Overloaded.Funcs.get_quantum_rank_pass(card,id)
-        local pass_id = id
-        if card:get_id() == SMODS.Ranks['rgmc_Infinity'].id then -- Infinity (counts as all ranks in scoring)
-            print('This is an Infinity card.') 
-            return true
-        elseif card:get_id() == SMODS.Ranks['rgmc_X'].id then -- X (counts as a random rank in deck)
-            pass_id = SMODS.Ranks[G.GAME.x_value]
-            return pass_id and (id == pass_id.id)
-        elseif card:get_id() == SMODS.Ranks['rgmc_Draw2'].id then -- Draw 2 (also counts as a 2)
-            return id == SMODS.Ranks['2'].id 
-        elseif card:get_id() == SMODS.Ranks['rgmc_Phi'].id then -- Phi (also counts as a 1 and 2)
-            return id == SMODS.Ranks['2'].id or id == SMODS.Ranks[MadLib.RankIds['1']].id 
-        end
-        return get_quantum_rank_ref(card, id)
-    end
-end
-
-local is_rank_ref = MadLib.is_rank
-function MadLib.is_rank(card, id, bypass_rankless, base_id)
-    if G.jokers then
-        MadLib.loop_func(G.jokers.cards, function(v)
-            local info = Overloaded.Lists.RankManipulation[v.config.center.key]
-            if not info then return end
-            base_id = (base_id == info.from_rank) and info.to_rank or base_id
-        end)
-    end
-
-    local result = is_rank_ref(card, id, bypass_rankless, base_id)
-    return result
+local is_rank_ref = MadLib.is_rank_full
+function MadLib.is_rank_full(playing_card, key, values)
+    values = values or { playing_card:get_id() }
+	local ret = is_rank_ref(playing_card, key, values)
+	return ret
 end
 
 -- Gets the # of empty slots - useful for editing.
@@ -324,7 +293,6 @@ function Overloaded.Funcs.loop_thru(card, t, div, prefix, whitelist, blacklist, 
     for k, v in pairs(t) do
         if type(v) == 'table' then
             prefix = prefix .. '/' .. k
-			print(prefix)
             did_something = did_something or Overloaded.Funcs.loop_thru(card, t[k], div, prefix, whitelist, blacklist)
         elseif type(v) == 'number' then
             local valid = nil
@@ -376,13 +344,11 @@ function Overloaded.Funcs.loop_thru(card, t, div, prefix, whitelist, blacklist, 
 
                 if valid then
                     local mult = MadLib.multiply(factor, (div or 1))
-                    --local v1 = MadLib.deep_copy(t[k])
 
                     if data.multiply then
                         t[k] = Overloaded.Funcs.apply_percentage(amt, mult)
                     else
                         t[k] = MadLib.multiply(amt, mult)
-                        --print('New value is ... ' .. tostring(t[k]) .. '.')
                     end
 
                     if data.multiply and MadLib.compare_numbers(t[k], 0.5) < 0 then
@@ -390,16 +356,11 @@ function Overloaded.Funcs.loop_thru(card, t, div, prefix, whitelist, blacklist, 
 					end
                     
                     if data.round then t[k] = math.ceil(t[k]) end
-                    --local v2 = MadLib.deep_copy(t[k])
-                
-                    --print(k .. ' - ' .. tostring(v1) .. " -> " .. tostring(v2))
 				else
-					print('INVALID!')
                 end
             end
         end
     end
-	print('Did something for ' .. card.config.center.key .. '? ' .. (did_something and 'YES!' or 'NO!'))
 	return did_something
 end
 
@@ -422,7 +383,6 @@ function Overloaded.Funcs.set_joker_rarity(card, new_rarity)
 	end
 
     card.ability.override_rarity = new_rarity
-    print('Override rarity is now ' .. tostring(card.ability.override_rarity) .. '.')
     local new_value = MadLib.get_rarity_value(new_rarity)
     local old_value = MadLib.get_rarity_value(old_rarity)
     
@@ -543,4 +503,14 @@ end
 function Overloaded.Funcs.modify_chip_values(card, value)
 
 
+end
+
+function Overloaded.Funcs.get_lowest(hand)
+  	local lowest = nil
+	for k, v in ipairs(hand) do
+		if (not lowest) or (v:get_nominal() < lowest:get_nominal()) then
+			lowest = v
+		end
+  	end
+  	return #hand > 0 and {{ lowest }} or {}
 end

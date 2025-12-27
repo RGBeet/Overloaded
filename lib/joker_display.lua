@@ -1,5 +1,14 @@
 if JokerDisplay then
     local jod = JokerDisplay.Definitions
+    
+    -- Hack
+    jod['j_hack'].reminder_text = { { text = "(<=5)" } }
+    jod['j_hack'].retrigger_function = function(playing_card, scoring_hand, held_in_hand, joker_card)
+        if held_in_hand then return 0 end
+        return MadLib.list_matches_one(Overloaded.Lists.Hack, function(v) return MadLib.is_rank(playing_card, v) end)
+            and MadLib.multiply(joker_card.ability.extra, JokerDisplay.calculate_joker_triggers(joker_card)) or 0
+    end
+
     -- Fibonacci
     jod['j_fibonacci'].calc_function = function(card)
         local mult = 0
@@ -160,7 +169,7 @@ if JokerDisplay then
         if text ~= 'Unknown' then
             for _, scoring_card in pairs(scoring_hand) do
                  if MadLib.list_matches_one(card.ability.ranks, function(v)
-                    return MadLib.is_rank(scoring_card, SMODS.Ranks[v].id)
+                    return MadLib.is_rank(scoring_card, v)
                 end) then
                     local retriggers = JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)
                     chips   = MadLib.add(chips, MadLib.multiply(card.ability.extra.chips, retriggers))
@@ -173,7 +182,7 @@ if JokerDisplay then
         card.joker_display_values.localized_text    = '(' .. localize(card.ability.ranks[1], 'ranks') .. ', ' .. localize(card.ability.ranks[1], 'ranks') .. ')'
     end
 
-    -- The Idol
+    --[[ The Idol
     jod['j_idol'].calc_function = function(card)
         local count = 0
         local text, _, scoring_hand = JokerDisplay.evaluate_hand()
@@ -186,7 +195,7 @@ if JokerDisplay then
         end
         card.joker_display_values.x_mult = MadLib.exponent(card.ability.extra, count)
         card.joker_display_values.idol_card = localize { type = 'variable', key = "jdis_rank_of_suit", vars = { localize(G.GAME.current_round.idol_card.rank, 'ranks'), localize(G.GAME.current_round.idol_card.suit, 'suits_plural') } }
-    end
+    end]]
 
     -- Shoot the Moon
      jod['j_shoot_the_moon'].calc_function = function(card)
@@ -213,7 +222,7 @@ if JokerDisplay then
         if text ~= 'Unknown' then
             for _, scoring_card in pairs(scoring_hand) do
                 if MadLib.list_matches_one(card.ability.ranks, function(v)
-                    return MadLib.is_rank(context.other_card, SMODS.Ranks[v].id)
+                    return MadLib.is_rank(context.other_card, v)
                 end) then
                     count = count + JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)
                 end

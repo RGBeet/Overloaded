@@ -37,6 +37,27 @@ return {
                     "give {C:attention}X#2#{} values"
                 }
             },
+            j_rgol_orange_ricky = {
+                name = "Orange Ricky",
+                text = {
+                    "All {V:1}#1#{}",
+                    "count as {C:attention}#2#s{}"
+                }
+            },
+            j_rgol_crazy_eights = {
+                name = "Crazy Eights",
+                text = {
+                    "All {V:1}#1#{}",
+                    "count as {C:attention}#2#s{}"
+                }
+            },
+            j_rgol_limbo = {
+                name = "Limbo",
+                text = {
+                    "{C:attention}High Card{} now scores",
+                    "the {C:attention}lowest{} ranking card"
+                }
+            },
             -- fixes
             j_greedy_joker = {
                 name = "Greedy Joker",

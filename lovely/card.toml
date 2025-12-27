@@ -41,10 +41,5 @@ position = 'at'
 payload = '''if AUT.card_type == 'Joker' or (AUT.badges and AUT.badges.force_rarity) then card_type = SMODS.Rarity:get_rarity_badge(Overloaded.Funcs.get_rarity(card, card)) end'''
 match_indent = true
 
-[[patches]]
-[patches.pattern]
-target = 'functions/common_events.lua'
-pattern = '''(_c.set == 'Joker' and G.C.RARITY[_c.rarity]) or'''
-position = 'at'
-payload = '''(_c.set == 'Joker' and G.C.RARITY[card.ability.override_rarity or _c.rarity]) or'''
-match_indent = true
+
+# X of a kind: add is_rank

@@ -14,12 +14,12 @@ return {
             local suit = Madcap.Funcs.get_joker_suit(card, 'Diamonds')
             return MadLib.collect_vars_colours(
                 localize(suit, 'suits_plural'),
-                MadLib.get_rank_locvar(card, card.ability.rank or '4'),
+                MadLib.get_rank_locvar(card, Overloaded.Funcs.get_joker_rank(card, '4')),
                 { G.C.SUITS[suit] })
         end,
         modify_playing_card_rank = function(self, card, scored_card, ranks)
             if scored_card:is_suit(Madcap.Funcs.get_joker_suit(card, 'Diamonds')) then
-                return { add_rank = card.ability.rank or '4' }
+                return { add_rank = Overloaded.Funcs.get_joker_rank(card, '4') }
             end
         end,
         demicoloncompat = false,

@@ -382,12 +382,11 @@ SMODS.Joker:take_ownership('triboulet', {
     calculate = function(self, card, context)
         if 
             context.individual 
-            and context.cardarea == G.play 
-            and MadLib.list_matches_one(card.ability.ranks, function(v)
-                return MadLib.is_rank(context.other_card, SMODS.Ranks[v].id)
-            end)
+            and context.cardarea == G.play
         then
-            return { xmult = card.ability.extra }
+            if MadLib.list_matches_one(Overloaded.Funcs.get_joker_ranks(card, { 'Queen', 'King' }), function(v) return MadLib.is_rank(context.other_card, v) end) then
+                return { xmult = card.ability.extra }
+            end
         end
     end
 }, true)
@@ -993,7 +992,11 @@ SMODS.Joker:take_ownership('castle', {
 SMODS.Joker:take_ownership('arrowhead', {
     config = { extra = 50, suit = 'Spades' },
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra, localize(Overloaded.Funcs.get_joker_suit(card, 'Spades'), 'suits_singular') } }
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Spades')
+        return { 
+            vars = { card.ability.extra, localize(suit, 'suits_singular'),
+            colours = { G.C.SUITS[suit] } },
+        }
     end,
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play and context.other_card:is_suit(Overloaded.Funcs.get_joker_suit(card, 'Clubs')) then
@@ -1006,7 +1009,11 @@ SMODS.Joker:take_ownership('arrowhead', {
 SMODS.Joker:take_ownership('onyx_agate', {
     config = { extra = 7, suit = 'Clubs' },
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra, localize(Overloaded.Funcs.get_joker_suit(card, 'Club'), 'suits_singular') } }
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Clubs')
+        return { 
+            vars = { card.ability.extra, localize(suit, 'suits_singular'),
+            colours = { G.C.SUITS[suit] } },
+        }
     end,
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play and context.other_card:is_suit(Overloaded.Funcs.get_joker_suit(card, 'Clubs')) then
@@ -1020,7 +1027,11 @@ SMODS.Joker:take_ownership('bloodstone', {
     config = { extra = { odds = 2, Xmult = 1.5}, suit = 'Hearts' },
     loc_vars = function(self, info_queue, card)
         local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'bloodstone')
-        return { vars = { numerator, denominator, card.ability.extra.Xmult, localize(Overloaded.Funcs.get_joker_suit(card, 'Hearts'), 'suits_singular') } }
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Hearts')
+        return { 
+            vars = { numerator, denominator, card.ability.extra.Xmult, localize(suit, 'suits_singular'),
+            colours = { G.C.SUITS[suit] } },
+        }
     end,
     calculate = function(self, card, context)
         if
@@ -1037,7 +1048,11 @@ SMODS.Joker:take_ownership('bloodstone', {
 SMODS.Joker:take_ownership('rough_diamond', {
     config = { extra = 1, suit = 'Diamonds' },
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra.dollars, localize(Overloaded.Funcs.get_joker_suit(card, 'Diamonds'), 'suits_singular') } }
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Diamonds')
+        return { 
+            vars = { card.ability.extra, localize(suit, 'suits_singular'),
+            colours = { G.C.SUITS[suit] } },
+        }
     end,
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play and context.other_card:is_suit(Overloaded.Funcs.get_joker_suit(card, 'Diamonds')) then
@@ -1057,12 +1072,36 @@ SMODS.Joker:take_ownership('rough_diamond', {
     end,
 }, true)
 
+-- Seeing Double - Override Suit
+SMODS.Joker:take_ownership('seeing_double', {
+    config = { extra = 2, suit = 'Clubs' },
+    loc_vars = function(self, info_queue, card)
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Clubs')
+        return { 
+            vars = { card.ability.extra, localize(suit, 'suits_singular'),
+            colours = { G.C.SUITS[suit] } },
+        }
+    end,
+    calculate = function(self, card, context)
+        if context.joker_main then
+            local suit = Overloaded.Funcs.get_joker_suit(card, 'Clubs')
+            if SMODS.seeing_double_check(context.scoring_hand, suit) then
+                return { xmult = card.ability.extra }
+            end
+        end
+    end,
+}, true)
+
 -- Sin Jokers
 MadLib.loop_func({{'greedy', 'Diamonds'}, {'lusty', 'Hearts'}, {'wrathful', 'Spades'}, {'gluttenous', 'Clubs'}}, function (sinful)
     SMODS.Joker:take_ownership(sinful[1] .. '_joker', {
+    config = { extra = { s_mult = 3, suit = sinful[2] } },
     loc_vars = function(self, info_queue, card)
         local suit = Overloaded.Funcs.get_joker_suit(card, sinful[2])
-        return { vars = { card.ability.s_mult, localize(suit, 'suits_singular'), colours = { G.C.SUITS[card.ability.suit_conv] } } }
+        return { 
+            vars = { card.ability.extra.s_mult, localize(suit, 'suits_singular'), 
+            colours = { G.C.SUITS[suit] } } 
+        }
     end,
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play and

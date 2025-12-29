@@ -195,6 +195,59 @@ return {
                     "{C:mult}+#1#{} Mult when scored", 
                 }
             },
+            j_rough_gem = {
+                name = "Rough Gem",
+                text = {
+                    "Played cards with",
+                    "{V:1}#2#{} suit earn",
+                    "{C:money}$#1#{} when scored", 
+                },
+                unlock = {
+                    "Have at least {E:1,C:attention}#1#",
+                    "cards with {E:1,C:attention}#2#",
+                    "suit in your deck"
+                }
+            },
+            j_bloodstone = {
+                name = "Bloodstone",
+                text = {
+                    "{C:green}#1# in #2#{} chance for",
+                    "played cards with",
+                    "{V:1}#4#{} suit to give",
+                    "{X:mult,C:white} X#3# {} Mult when scored", 
+                },
+                unlock = {
+                    "Have at least {E:1,C:attention}#1#",
+                    "cards with {E:1,C:attention}#2#",
+                    "suit in your deck"
+                }
+            },
+            j_arrowhead = {
+                name = "Arrowhead",
+                text = {
+                    "Played cards with",
+                    "{V:1}#2#{} suit give",
+                    "{C:chips}+#1#{} Chips when scored",
+                },
+                unlock = {
+                    "Have at least {E:1,C:attention}#1#",
+                    "cards with {E:1,C:attention}#2#",
+                    "suit in your deck"
+                }
+            },
+            j_onyx_agate = {
+                name = "Onyx Agate",
+                text = {
+                    "Played cards with",
+                    "{V:1}#2#{} suit give",
+                    "{C:mult}+#1#{} Mult when scored", 
+                },
+                unlock = {
+                    "Have at least {E:1,C:attention}#1#",
+                    "cards with {E:1,C:attention}#2#",
+                    "suit in your deck"
+                }
+            },
             -- Override Rank compat
             j_scholar = {
                 name = "Scholar",
@@ -203,6 +256,28 @@ return {
                     "give {C:chips}+#2#{} Chips",
                     "and {C:mult}+#2#{} Mult",
                     "when scored"
+                }
+            },
+            j_seeing_double = {
+                name = "Seeing Double",
+                text = {
+                    "{X:mult,C:white} X#1# {} Mult if played",
+                    "hand has a scoring",
+                    "{V:1}#2#{} card and a scoring",
+                    "card of any other {C:attention}suit",
+                },
+                unlock = {
+                    "Play a hand",
+                    "that contains",
+                    "{E:1,C:attention}#1#"
+                }
+            },
+            j_blackboard = {
+                name = "Blackboard",
+                text = {
+                    "{X:red,C:white} X#1# {} Mult if all",
+                    "cards held in hand",
+                    "are {V:1}#2#{} or {V:2}#3#{}"
                 }
             },
             -- Shows +Mult for current hand played.
@@ -331,8 +406,8 @@ return {
             j_triboulet = {
                 name = "Triboulet",
                 text = {
-                    "Played {C:attention}#2#{} and",
-                    "{C:attention}#3#{} each give",
+                    "Played {C:attention}#2#s{} and",
+                    "{C:attention}#3#s{} each give",
                     "{X:mult,C:white} X#1# {} Mult when scored"
                 },
                 unlock = {

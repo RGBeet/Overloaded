@@ -217,11 +217,12 @@ if JokerDisplay then
 
     -- Triboulet
     jod['j_triboulet'].calc_function = function(card)
+        local ranks = Overloaded.Funcs.get_joker_ranks(card, { 'Queen', 'King' } )
         local count = 0
         local text, _, scoring_hand = JokerDisplay.evaluate_hand()
         if text ~= 'Unknown' then
             for _, scoring_card in pairs(scoring_hand) do
-                if MadLib.list_matches_one(card.ability.ranks, function(v)
+                if MadLib.list_matches_one(ranks, function(v)
                     return MadLib.is_rank(scoring_card, v)
                 end) then
                     count = count + JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)
@@ -229,7 +230,107 @@ if JokerDisplay then
             end
         end
         card.joker_display_values.x_mult = MadLib.exponent(card.ability.extra, count)
-        card.joker_display_values.localized_text_king   = localize(card.ability.ranks[1], "ranks")
-        card.joker_display_values.localized_text_queen  = localize(card.ability.ranks[2], "ranks")
+        card.joker_display_values.localized_text_king   = localize(ranks[2], "ranks")
+        card.joker_display_values.localized_text_queen  = localize(ranks[1], "ranks")
+    end
+
+    jod['j_rough_gem'].calc_function = function(card)
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Diamonds')
+        local dollars = 0
+        local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+        if text ~= 'Unknown' then
+            for _, scoring_card in pairs(scoring_hand) do
+                if scoring_card:is_suit(suit) then
+                    dollars = MadLib.add(dollars, MadLib.multiply(card.ability.extra, JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)))
+                end
+            end
+        end
+        card.joker_display_values.dollars = dollars
+        card.joker_display_values.localized_text = localize(suit, 'suits_plural')
+    end
+
+    jod['j_bloodstone'].calc_function = function(card)
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Hearts')
+        local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+        local count = 0
+        if text ~= 'Unknown' then
+            for _, scoring_card in pairs(scoring_hand) do
+                if scoring_card:is_suit(suit) then
+                    count = MadLib.add(count, JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand))
+                end
+            end
+        end
+        card.joker_display_values.count = count
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'bloodstone')
+        card.joker_display_values.odds = localize { type = 'variable', key = "jdis_odds", vars = { numerator, denominator } }
+        card.joker_display_values.localized_text = localize(suit, 'suits_plural')
+    end
+
+    jod['j_arrowhead'].calc_function = function(card)
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Spades')
+        local chips = 0
+        local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+        if text ~= 'Unknown' then
+            for _, scoring_card in pairs(scoring_hand) do
+                if scoring_card:is_suit(suit) then
+                    chips = MadLib.add(chips, MadLib.multiply(card.ability.extra, JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)))
+                end
+            end
+        end
+        card.joker_display_values.chips = chips
+        card.joker_display_values.localized_text = localize(suit, 'suits_plural')
+    end
+
+    jod['j_onyx_agate'].calc_function = function(card)
+        local suit = Overloaded.Funcs.get_joker_suit(card, 'Clubs')
+        local mult = 0
+        local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+        if text ~= 'Unknown' then
+            for _, scoring_card in pairs(scoring_hand) do
+                if scoring_card:is_suit(suit) then
+                    mult = MadLib.add(mult, MadLib.multiply(card.ability.extra, JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)))
+                end
+            end
+        end
+        card.joker_display_values.mult = mult
+        card.joker_display_values.localized_text = localize(suit, 'suits_plural')
+    end
+
+    jod['j_seeing_double'].calc_function = function(card)
+        local target_suit = Overloaded.Funcs.get_joker_suit(card, 'Clubs')
+        local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+        local suits = { }
+        for k, _ in SMODS.Suits do
+            suits[k] = 0
+        end
+        if text ~= 'Unknown' then
+            for i = 1, #scoring_hand do
+                if scoring_hand[i].ability.name ~= 'Wild Card' then
+                    for k, _ in SMODS.Suits do
+                        if scoring_hand[i]:is_suit(suits[k]) then
+                            suits[k] = suits[k] + 1
+                        end
+                    end
+                end
+            end
+            for i = 1, #scoring_hand do
+                if scoring_hand[i].ability.name == 'Wild Card' then
+                    if scoring_hand[i]:is_suit(target_suit) and suits[target_suit] == 0 then
+                        suits[target_suit] = suits[target_suit] + 1
+                    else
+                        for k, _ in SMODS.Suits do
+                            if scoring_hand[i]:is_suit(suits[k]) then
+                                suits[k] = suits[k] + 1
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        local clubs_working = (suits[target_suit] > 0)
+        local suits_active = 0
+        card.joker_display_values.x_mult = (clubs_working and suits_active > 1) and card.ability.extra or 1
+        card.joker_display_values.localized_text_clubs = localize(target_suit, 'suits_singular')
+        card.joker_display_values.localized_text_other = localize('k_other')
     end
 end

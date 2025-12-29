@@ -151,21 +151,6 @@ Overloaded.Lists.QuasicolonVanilla = {
     'perkeo',
 }
 
-function Overloaded.Funcs.quasi_check(card, context)
-    if not card then return {} end
-    local results = {} 
-    if card.ability.set == 'Joker' then
-        results   = Overloaded.Funcs.quasi_trigger_vanilla_joker(card)
-        if results == nil then
-            local quasi_context = MadLib.deep_copy(context)
-            quasi_context.forcecheck = true
-            results = eval_card(card, quasi_context)
-            quasi_context = nil
-        end
-    end
-    return results
-end
-
 local get_joker_value = function(card, val)
     return type(card.ability.extra) == 'table' and card.ability.extra[val] or card.ability[val]
 end
@@ -179,13 +164,348 @@ local get_joker_values = function(card, ...)
     return nil
 end
 
+function Overloaded.Funcs.quasi_check_vanilla_joker(card, context, do_secondary_check)
+    if (not card) or context.blueprint then return nil end
+    local key = card.config.center.key
+    if not MadLib.list_matches_one(Overloaded.Lists.QuasicolonVanilla, function(v)
+        return card.config.center.key == 'j_'..v
+    end) then return nil end
+
+    if 
+        key == 'j_joker'
+        or key == 'j_stencil'
+        or key == 'j_banner'
+        or key == 'j_loyalty_card'
+        or key == 'j_misprint'
+        or key == 'j_raised_fist'
+        or key == 'j_steel_joker'
+        or key == 'j_abstract'
+        or key == 'j_supernova'
+        or key == 'j_ride_the_bus'
+        or key == 'j_ice_cream'
+        or key == 'j_blue_joker'
+        or key == 'j_green_joker'
+        or key == 'j_erosion'
+        or key == 'j_popcorn'
+        or key == 'j_stuntman'
+    then -- activate upon joker_main
+        return context.joker_main
+    elseif key == 'j_greedy_joker' or key == 'j_rough_gem' then
+        return (context.individual and context.cardarea == G.play) and Overloaded.Funcs.get_joker_suit(card, 'Diamonds')
+    elseif key == 'j_lusty_joker' then
+        return (context.individual and context.cardarea == G.play) and Overloaded.Funcs.get_joker_suit(card, 'Hearts')
+    elseif key == 'j_bloodstone' then
+        return (context.individual and context.cardarea == G.play) 
+            and Overloaded.Funcs.get_joker_suit(card, 'Hearts')
+            and SMODS.pseudorandom_probability(card, 'bloodstone', 1, card.ability.extra.odds)
+    elseif key == 'j_wrathful_joker' or key == 'j_arrowhead' then
+        return (context.individual and context.cardarea == G.play) and Overloaded.Funcs.get_joker_suit(card, 'Spades')
+    elseif key == 'j_gluttenous_joker' or key == 'j_onyx_agate' then
+        return (context.individual and context.cardarea == G.play) and Overloaded.Funcs.get_joker_suit(card, 'Clubs')
+    elseif key == 'j_jolly' or key == 'j_sly' or key == 'j_duo' then
+        return context.joker_main and context.poker_hands and next(context.poker_hands[Overloaded.Funcs.get_joker_hand(card, 'Pair')])
+    elseif key == 'j_zany' or key == 'j_wily' or key == 'j_trio' then
+        return context.joker_main and context.poker_hands and next(context.poker_hands[Overloaded.Funcs.get_joker_hand(card, 'Three of a Kind')])
+    elseif key == 'j_mad' or key == 'j_clever' then
+        return context.joker_main and context.poker_hands and next(context.poker_hands[Overloaded.Funcs.get_joker_hand(card, 'Two Pair')])
+    elseif key == 'j_crazy' or key == 'j_devious' or key == 'j_runner' or key == 'j_order' then
+        return context.joker_main and context.poker_hands and next(context.poker_hands[Overloaded.Funcs.get_joker_hand(card, 'Straight')])
+    elseif key == 'j_droll' or key == 'j_crafty' or key == 'j_tribe' then
+        return context.joker_main and context.poker_hands and next(context.poker_hands[Overloaded.Funcs.get_joker_hand(card, 'Flush')])
+    elseif key == 'j_family' then
+        return context.joker_main and context.poker_hands and next(context.poker_hands[Overloaded.Funcs.get_joker_hand(card, 'Four of a Kind')])
+    elseif key == 'j_greedy_joker' then
+        return (context.individual and context.cardarea == G.play) and Overloaded.Funcs.get_joker_suit(card, 'Diamonds')
+    elseif key == 'j_half' then
+        return context.joker_main and Overloaded.Funcs.get_modified_card_quantity(context.full_hand) <= card.ability.extra.size
+    elseif 
+        key == 'j_ceremonial'
+        or key == 'j_marble'
+        or key == 'j_burglar'
+    then
+        return context.setting_blind
+    elseif key == 'j_mystic_summit' then
+        return context.joker_main and G.GAME.current_round.discards_left == card.ability.extra.d_remaining
+    elseif key == 'j_8_ball' then
+        return context.full_hand
+            and #context.full_hand == 1 and context.destroy_card == context.full_hand[1]
+            and MadLib.joker_check_rank(context.full_hand[1], card, Overloaded.Funcs.get_joker_rank(card, '6'))
+    elseif key == 'j_sixth_sense' then
+        return context.individual and context.cardarea == G.play
+            and MadLib.joker_check_rank(context.other_card, card, Overloaded.Funcs.get_joker_rank(card, '8'))
+            and SMODS.pseudorandom_probability(card, '8_ball', 1, card.ability.extra)
+            and G.GAME.current_round.hands_played == 0
+    elseif key == 'j_dusk' then
+        return context.joker_main and G.GAME.current_round.hands_left == 0
+    elseif key == 'j_fibonacci' then
+        return context.individual and context.cardarea == G.play and MadLib.has_fib_rank(context.other_card)
+    elseif key == 'j_even_steven' then
+        return context.individual and context.cardarea == G.play and MadLib.has_odd_rank(context.other_card)
+    elseif key == 'j_odd_todd' then
+        return context.individual and context.cardarea == G.play and MadLib.has_even_rank(context.other_card)
+    elseif 
+        key == 'j_scary_face'
+        or key == 'j_smiley'
+        or key == 'j_midas_mask'
+    then
+        return context.individual and context.individual and context.cardarea == G.play and context.other_card:is_face()
+    elseif key == 'j_delayed_grat' then
+        return G.GAME.current_round.discards_used == 0 and G.GAME.current_round.discards_left > 0
+    elseif key == 'j_hack' then
+        return context.cardarea == G.play and context.repetition and not context.repetition_only and MadLib.list_matches_one(Overloaded.Lists.Hack, function(v)
+            return MadLib.is_rank(context.other_card, v)
+        end)
+    elseif key == 'j_scholar' then
+        return context.individual and context.cardarea == G.play and MadLib.joker_check_rank(context.other_card, card, 'Ace')
+    elseif key == 'j_business' then
+        return context.individual and context.cardarea == G.play and
+            context.other_card:is_face() and
+            SMODS.pseudorandom_probability(card, 'business', 1, card.ability.extra)
+    elseif key == 'j_space' then
+        return context.before and SMODS.pseudorandom_probability(card, 'space', 1, card.ability.extra)
+    elseif key == 'j_egg' then
+        return context.end_of_round and context.game_over == false
+    elseif key == 'j_blackboard' then
+        return context.joker_main and MadLib.list_matches_all(G.hand.cards, function(v)
+            local suits = Overloaded.Funcs.get_joker_suits(card, {'Clubs', 'Spades'})
+            for i=1,2 do if v:is_suit(suits[i], nil, true) then return true end; end
+            return false
+        end)
+    elseif key == 'j_dna' then
+        return context.before and G.GAME.current_round.hands_played == 0 and #context.full_hand == 1
+    elseif key == 'j_constellation' then
+        if do_secondary_check then 
+            return context.joker_main
+        elseif context.before then
+            local reset = true
+            local play_more_than = (G.GAME.hands[context.scoring_name].played or 0)
+            for handname, values in pairs(G.GAME.hands) do
+                if handname ~= context.scoring_name and values.played >= play_more_than and SMODS.is_poker_hand_visible(handname) then
+                    reset = false
+                    break
+                end
+            end
+            return (reset == true) or nil
+        else
+            return nil
+        end
+    elseif key == 'j_hologram' then
+        return do_secondary_check and (context.joker_main) or (context.playing_card_added)
+    elseif key == 'j_obelisk' then
+        return do_secondary_check and (context.joker_main) or (context.using_consumeable and context.consumeable.ability.set == 'Planet')
+    elseif key == 'j_hiker' then
+        return context.individual and context.cardarea == G.play -- too op?
+    elseif key == 'j_faceless' then
+        return context.discard and context.other_card == context.full_hand[#context.full_hand]
+    elseif key == 'j_superposition' then
+        return context.joker_main
+            and context.poker_hands and next(context.poker_hands[Overloaded.Funcs.get_joker_hand(card, 'Straight')])
+            and  MadLib.list_matches_one(context.scoring_hand, function(v)
+                return MadLib.joker_check_rank(v, card, 'Ace')
+            end)
+    elseif key == 'j_todo_list' then
+        return context.before and context.scoring_name == Overloaded.Funcs.get_joker_hand(card, 'High Card')
+    elseif 
+        key == 'j_gros_michel'
+        or key == 'j_cavendish'
+    then
+        return do_secondary_check and (context.end_of_round 
+                and context.game_over == false
+                and context.main_eval
+                and SMODS.pseudorandom_probability(card, key, 1, card.ability.extra.odds))
+            or (context.joker_main)
+    elseif key == 'j_card_sharp' then
+        return context.joker_main and G.GAME.hands[context.scoring_name] and G.GAME.hands[context.scoring_name].played_this_round > 1
+    elseif key == 'j_red_card' then
+        return context.skipping_booster
+    elseif key == 'j_madness' then
+        return context.setting_blind and not context.blind.boss
+    elseif key == 'j_square' then
+        return context.joker_main and #context.full_hand == 4
+    elseif key == 'j_riff_raff' then
+        return context.setting_blind and #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit -- must have room, haha
+    elseif key == 'j_vampire' then
+        return context.before and MadLib.list_matches_one(context.scoring_hand, function(v) -- a little tricky i suppose
+             return next(SMODS.get_enhancements(v)) and not v.debuff
+        end)
+    elseif key == 'j_photograph' then
+        return context.before and MadLib.list_matches_one(context.scoring_hand, function(v) -- a little tricky i suppose
+             return v:is_face()
+        end)
+    elseif key == 'j_vagabond' then
+        return context.joker_main and
+            #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit
+            and MadLib.compare_numbers(G.GAME.dollar, card.ability.extra)
+    elseif key == 'j_baron' then -- TODO: add functions for each specific check?
+        return context.individual
+            and context.cardarea == G.hand 
+            and not context.end_of_round 
+            and MadLib.joker_check_rank(context.other_card, card, 'King')
+            and context.other_card:quantity_exists()
+    elseif 
+        key == 'j_cloud_9'
+        or key == 'j_to_the_moon'
+        or key == 'j_gift_card'
+        or key == 'j_golden'
+        or key == 'j_constellation'
+    then
+        return context.end_of_round and context.game_over == false and context.main_eval
+    elseif key == 'j_rocket' then
+        return context.end_of_round and context.game_over == false and context.main_eval and context.beat_boss
+    elseif key == 'j_reserved_parking' then
+        return context.individual and context.cardarea == G.hand and not context.end_of_round and context.other_card:is_face() 
+            and not (context.other_card.debuff or not context.other_card:quantity_exists())
+    elseif key == 'j_mail' then
+        return context.discard 
+            and not (context.other_card.debuff or not context.other_card:quantity_exists())
+            and MadLib.is_rank(context.other_card, G.GAME.current_round.mail_card.id)
+    elseif key == 'j_hallucination' then
+        return context.open_booster and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit
+            and SMODS.pseudorandom_probability(card, 'hallucination' .. G.GAME.round_resets.ante, 1, card.ability.extra)
+    elseif key == 'j_fortune_teller' then
+        return do_secondary_check 
+            and (context.using_consumeable and context.consumeable.ability.set == "Tarot")
+            or (context.joker_main and G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.tarot > 0)
+    elseif key == 'j_fortune_teller' then
+        return do_secondary_check 
+            and (context.joker_main)
+            or (context.individual and context.cardarea == G.play and context.other_card.lucky_trigger)
+    elseif key == 'j_stone' then
+        return context.joker_main and MadLib.list_matches_one(G.playing_cards, function(v)
+            return SMODS.has_enhancement(v, 'm_stone') and v:get_quantity_value() or 0
+        end)
+    elseif key == 'j_baseball' then
+        return context.other_joker and (context.other_joker.config.center.rarity == 2 or context.other_joker.config.center.rarity == "Uncommon")
+    elseif key == 'j_bull' or key == 'j_bootstraps' then
+        return context.joker_main and MadLib.is_positive_number(MadLib.add(G.GAME.dollars, G.GAME.dollar_buffer or 0))
+    elseif key == 'j_trading' then
+        return context.discard and G.GAME.current_round.discards_used <= 0 and #context.full_hand == 1
+    elseif key == 'j_flash' then
+        return context.reroll_shop
+    elseif key == 'j_trousers' then
+        return do_secondary_check 
+            and context.joker_main
+            or context.joker_main and next(context.poker_hands[Overloaded.Funcs.get_joker_hand(card, 'Two Pair')])
+    elseif key == 'j_ancient' then
+        return context.individual 
+            and context.cardarea == G.play
+            and context.other_card:is_suit(Overloaded.Funcs.get_joker_suit(card, (G.GAME.current_round.ancient_card or {}).suit or 'Spades'))
+    elseif key == 'j_ramen' then
+        return do_secondary_check 
+            and context.discard
+            or context.joker_main
+    elseif key == 'j_walkie_talkie' then
+        return context.individual 
+            and context.cardarea == G.play
+            and MadLib.list_matches_one(card.ability.ranks, function(v)
+                return MadLib.is_rank(context.other_card, v)
+            end)
+    elseif key == 'j_castle' then
+        return do_secondary_check 
+            and (context.discard
+                and not context.other_card.debuff
+                and context.other_card:is_suit(G.GAME.current_round.castle_card.suit))
+            or context.joker_main
+    elseif key == 'j_campfire' then
+        return do_secondary_check 
+            and context.selling_card
+            or context.joker_main
+    elseif key == 'j_ticket' then
+        return context.individual and context.cardarea == G.play and SMODS.has_enhancement(context.other_card, 'm_gold')
+    elseif key == 'j_mr_bones' then
+        return context.end_of_round and context.game_over and context.main_eval
+            and MadLib.compare_numbers(MadLib.divide(G.GAME.chips, G.GAME.blind.chips), 0.25) >= 0
+    elseif key == 'j_acrobat' then
+        return context.joker_main and G.GAME.current_round.hands_left == 0
+    elseif key == 'j_swashbuckler' then
+        if context.joker_main then
+            local sell_cost = 0
+            for _, joker in ipairs(G.jokers.cards) do
+                if joker ~= card then
+                    sell_cost = sell_cost + joker.sell_cost
+                end
+            end
+            return MadLib.is_positive_number(sell_cost)
+        end
+    elseif key == 'j_certificate' then
+        return context.first_hand_drawn
+    elseif key == 'j_throwback' then
+        return do_secondary_check and (context.joker_main and G.GAME.skips > 0)
+            or context.skip_blind
+    elseif key == 'j_throwback' then
+        return context.cardarea == G.play and context.other_card == context.scoring_hand[1]
+    elseif key == 'j_glass' then
+        return do_secondary_check and context.joker_main
+           or ((context.remove_playing_cards and MadLib.list_matches_one(context.removed, function(v) return v.shattered end))
+            or context.using_consumeable and not context.blueprint and context.consumeable.config.center.key == 'c_hanged_man' and MadLib.list_matches_one(G.hand.highlighted, function(v) return SMODS.has_enhancement(v, 'm_glass') end))
+    elseif key == 'j_flower_pot' then
+        return context.joker_main and MadLib.get_flower_pot(context.scoring_hand) > 3
+    elseif key == 'j_wee' then
+        return do_secondary_check and context.joker_main 
+            or (context.individual 
+            and context.cardarea == G.play
+            and MadLib.joker_check_rank(context.other_card, card, '2'))
+    elseif key == 'j_idol' then
+        return context.individual
+            and context.cardarea == G.play 
+            and Overloaded.Funcs.is_rank_and_suit(context.other_card, G.GAME.current_round.idol_card.id, G.GAME.current_round.idol_card.suit)
+    elseif key == 'j_seeing_double' then
+        return context.joker_main and SMODS.seeing_double_check(context.scoring_hand, Overloaded.Funcs.get_joker_suit(card, 'Clubs'))
+    elseif key == 'j_matador' then
+        return (context.debuffed_hand or context.joker_main) and G.GAME.blind.triggered
+    elseif key == 'j_hit_the_road' then
+        return context.discard 
+            and not context.blueprint
+            and MadLib.joker_check_rank(context.other_card, card, 'Jack') 
+            and context.other_card:quantity_exists()
+    elseif key == 'j_shoot_the_moon' then
+        return context.individual
+            and context.cardarea == G.hand
+            and (not context.end_of_round)
+            and MadLib.joker_check_rank(context.other_card, card, 'Queen')
+            and context.other_card:quantity_exists()
+    elseif key == 'j_drivers_license' then
+        return context.joker_main and MadLib.get_card_count(G.playing_cards, function(v)
+            return next(SMODS.get_enhancements(v))
+        end) >= 18
+    elseif key == 'j_cartomancer' then
+        return context.setting_blind and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit
+    elseif key == 'j_burnt' then
+        return context.pre_discard and G.GAME.current_round.discards_used <= 0 and not context.hook
+    elseif key == 'j_caino' then
+        return do_secondary_check and context.joker_main
+            or (context.remove_playing_card and
+                MadLib.list_matches_one(context.removed, function(v)
+                    return v:is_face() and v:quantity_exists()
+                end))
+    elseif key == 'j_triboulet' then
+        return context.individual 
+            and context.cardarea == G.play
+            and MadLib.list_matches_one(Overloaded.Funcs.get_joker_ranks(card, { 'Queen', 'King' }), function(v) return MadLib.is_rank(context.other_card, v) end)
+    elseif key == 'j_yorick' then
+        return do_secondary_check and context.joker_main or context.discard and context.other_card:quantity_exists()
+    elseif key == 'j_perkeo' then
+        return context.ending_shop
+    end
+end
+
+function Overloaded.Funcs.quasi_check(card, cards, context, do_secondary_check)
+    if not card then return false end
+    local results
+    if card.ability.set == 'Joker' then
+        card = Overloaded.Funcs.quasi_handle_blueprint(card, cards)
+        results = Overloaded.Funcs.quasi_check_vanilla_joker(card, context, do_secondary_check)
+        if results then print(results) end
+    end
+    return results or false
+end
+
 function Overloaded.Funcs.quasi_trigger_vanilla_joker(card, context, do_extra_actions)
     local key = card.config.center.key
     if not MadLib.list_matches_one(Overloaded.Lists.QuasicolonVanilla, function(v)
         return card.config.center.key == 'j_'..v
     end) then return nil end
     local results = {}
-    print("Key is " .. key .. ".")
     if
         key == 'j_joker'
         or key == 'j_half'
@@ -304,7 +624,6 @@ function Overloaded.Funcs.quasi_trigger_vanilla_joker(card, context, do_extra_ac
         results = { chips = get_joker_value(card, 't_chips') }
     elseif
         key == 'j_stencil'
-        or key == 'j_loyalty_card'
         or key == 'j_flower_pot'
         or key == 'j_steel_joker'
         or key == 'j_glass'
@@ -328,6 +647,10 @@ function Overloaded.Funcs.quasi_trigger_vanilla_joker(card, context, do_extra_ac
         or key == 'j_card_acrobat'
     then -- x mult w/ no scale
         results = { x_mult = card.ability.extra }
+    elseif
+        key == 'j_loyalty_card'
+    then -- x mult w/ no scale, uses extra table
+        results = { x_mult = card.ability.extra.Xmult }
     elseif key == 'j_lucky_cat' then -- lucky cat
         if do_extra_actions then
 			card.ability.x_mult = MadLib.add(card.ability.x_mult, card.ability.extra)

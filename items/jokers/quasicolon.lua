@@ -14,7 +14,7 @@ return {
         loc_vars = function(self, info_queue, card)
             card.ability.quasi_compat_ui = card.ability.quasi_compat_ui or ""
             card.ability.quasi_compat_check = nil
-            local check = card.ability.check
+            --local check = card.ability.check
             return {
                 main_end = (card.area and card.area == G.jokers)
                         and {
@@ -76,13 +76,21 @@ return {
             end
         end,
         calculate = function(self, card, context)
-            if context.joker_main and not context.blueprint then
+            if not context.blueprint then
+                local pass = false
+                local index = 0
                 local jokers = card.area or G.jokers
-                for i = 1, #jokers.cards do
+                for i = 2, (#jokers.cards)-1 do
                     if jokers.cards[i] == card then
-                        local results = Overloaded.Funcs.quasi_trigger(jokers.cards[i + 1], jokers.cards, context)
-                        return results
+                        index = i+1
+                        local left_card = Overloaded.Funcs.quasi_handle_blueprint(jokers.cards[i-1], jokers.cards)
+                        pass = Overloaded.Funcs.quasi_check(left_card, jokers.cards, context)
                     end
+                end
+                if pass and index ~= 0 then
+                    local right_card = Overloaded.Funcs.quasi_handle_blueprint(jokers.cards[index], jokers.cards, nil, true)
+                    local result = Overloaded.Funcs.quasi_trigger(right_card, jokers.cards, context)
+                    return result
                 end
             end
         end,

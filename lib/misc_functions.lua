@@ -424,6 +424,7 @@ function Overloaded.Funcs.get_joker_rank(card, default)
 	return get_vals(card, default, 'rank', 'override_rank')
 end
 
+
 function Overloaded.Funcs.get_joker_ranks(card, default)
 	return get_vals(card, default, 'ranks', 'override_ranks')
 end

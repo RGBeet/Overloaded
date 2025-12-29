@@ -19,7 +19,6 @@ SMODS.Joker:take_ownership('hack', {
 	end,
 }, true)
 
--- Fibonacci: Takes any rank with a nominal equal to the Fibonacci sequence.
 SMODS.Joker:take_ownership('fibonacci', {
 	calculate = function(self, card, context)
 		if
@@ -33,7 +32,6 @@ SMODS.Joker:take_ownership('fibonacci', {
 	end,
 }, true)
 
--- Fibonacci: Takes any odd numbered rank.
 SMODS.Joker:take_ownership('odd_todd', {
 	config = { extra = 25 },
 	calculate = function(self, card, context)
@@ -48,7 +46,6 @@ SMODS.Joker:take_ownership('odd_todd', {
 	end,
 }, true)
 
--- Fibonacci: Takes any even numbered rank.
 SMODS.Joker:take_ownership('even_steven', {
 	calculate = function(self, card, context)
 		if
@@ -74,7 +71,7 @@ SMODS.Joker:take_ownership('8_ball', {
             and (#G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit)
         then
             if
-                MadLib.joker_check_rank(context.other_card, card, card.ability.rank or '8')
+                MadLib.joker_check_rank(context.other_card, card, Overloaded.Funcs.get_joker_rank(card, '8'))
                 and SMODS.pseudorandom_probability(card, '8_ball', 1, card.ability.extra)
             then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
@@ -214,7 +211,7 @@ SMODS.Joker:take_ownership('walkie_talkie', {
             and context.cardarea == G.play
         then
             if MadLib.list_matches_one(card.ability.ranks, function(v)
-                return MadLib.is_rank(context.other_card, SMODS.Ranks[v].id)
+                return MadLib.is_rank(context.other_card, v)
             end) then
                 return {
                     chips   = card.ability.extra.chips,
@@ -462,16 +459,18 @@ SMODS.Joker:take_ownership('perkeo', {
                    items[#items+1] = v
                 end
             end)
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    local card_to_copy, _ = pseudorandom_element(items, 'perkeo')
-                    local copied_card = copy_card(card_to_copy)
-                    copied_card:set_edition("e_negative", true)
-                    copied_card:add_to_deck()
-                    G.consumeables:emplace(copied_card)
-                    return true
-                end
-            }))
+            if #items > 0 then
+                MadLib.event({
+                    func = function()
+                        local card_to_copy, _ = pseudorandom_element(items, 'perkeo')
+                        local copied_card = copy_card(card_to_copy)
+                        copied_card:set_edition("e_negative", true)
+                        copied_card:add_to_deck()
+                        G.consumeables:emplace(copied_card)
+                        return true
+                    end
+                })
+            end
             return { message = localize('k_duplicated_ex') }
         end
     end,
@@ -1092,6 +1091,62 @@ SMODS.Joker:take_ownership('seeing_double', {
     end,
 }, true)
 
+function MadLib.get_flower_pot(scoring_hand)
+    local suits = {}
+    for k,_ in pairs(SMODS.Suits) do suits[k] = 0; end
+    
+    for i = 1, #scoring_hand do
+        if not SMODS.has_any_suit(scoring_hand[i]) then
+            for k, _ in pairs(suits) do
+                if scoring_hand[i]:is_suit(k, true) then suits[k] = suits[k] + 1; end
+            end
+        end
+        if SMODS.has_any_suit(scoring_hand[i]) then
+            for k, _ in pairs(suits) do
+                if scoring_hand[i]:is_suit(k, true) then suits[k] = suits[k] + 1; end
+            end
+        end
+    end
+    
+    local matches = 0
+    for _, v in pairs(suits) do
+        if v > 0 then matches = matches + 1; end
+    end
+    return matches
+end
+
+-- Flower Pot - Override Suit
+SMODS.Joker:take_ownership('flower_pot', {
+    calculate = function(self, card, context)
+        if context.joker_main then
+            if MadLib.get_flower_pot(context.scoring_hand) > 3 then return { xmult = card.ability.extra } end
+        end
+    end,
+}, true)
+
+-- Blackboard - override suits
+SMODS.Joker:take_ownership('blackboard', {
+    config = { extra = 3, suits = {'Clubs', 'Spades'} },
+    loc_vars = function(self, info_queue, card)
+        local suits = Overloaded.Funcs.get_joker_suits(card, {'Clubs', 'Spades'})
+        return { 
+            vars = { card.ability.extra, localize(suits[1], 'suits_plural'), localize(suits[2], 'suits_plural'),
+            colours = { G.C.SUITS[suits[1]], G.C.SUITS[suits[2]] } },
+        }
+    end,
+    calculate = function(self, card, context)
+        if context.joker_main then
+            local suits = Overloaded.Funcs.get_joker_suits(card, {'Clubs', 'Spades'})
+            if MadLib.list_matches_all(G.hand.cards, function(v)
+                for i=1,2 do if v:is_suit(suits[i], nil, true) then return true end; end
+                return false
+            end) then
+                return { xmult = card.ability.extra }
+            end
+        end
+    end,
+}, true)
+
 -- Sin Jokers
 MadLib.loop_func({{'greedy', 'Diamonds'}, {'lusty', 'Hearts'}, {'wrathful', 'Spades'}, {'gluttenous', 'Clubs'}}, function (sinful)
     SMODS.Joker:take_ownership(sinful[1] .. '_joker', {
@@ -1178,8 +1233,6 @@ MadLib.loop_func({
     })
 end)
 
-
-
 -- Superposition
 SMODS.Joker:take_ownership('superposition', {
     config = { rank = 'Ace', type = 'Straight' },
@@ -1211,6 +1264,116 @@ SMODS.Joker:take_ownership('superposition', {
     end
 }, true)
 
+
+-- Seance
+SMODS.Joker:take_ownership('seance', {
+    config = { extra = { poker_hand = 'Five of a Kind' }, type = 'Straight Flush' },
+    loc_vars = function(self, info_queue, card)
+        return MadLib.collect_vars(localize(Overloaded.Funcs.get_joker_hand(card, 'Straight Flush'), 'poker_hands'))
+    end,
+    calculate = function(self, card, context)
+        if 
+            context.joker_main 
+            and next(Overloaded.Funcs.get_joker_hand(card, 'Straight Flush')) 
+            and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit 
+        then
+            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+            MadLib.event({
+                func = (function()
+                    SMODS.add_card {
+                        set = 'Spectral',
+                        key_append = 'seance'
+                    }
+                    G.GAME.consumeable_buffer = 0
+                    return true
+                end)
+            })
+            return {
+                message = localize('k_plus_spectral'),
+                colour = G.C.SECONDARY_SET.Spectral
+            }
+        end
+    end
+}, true)
+
+-- Spare Trousers
+SMODS.Joker:take_ownership('trousers', {
+    config = { extra = 2, type = 'Two Pair' },
+    loc_vars = function(self, info_queue, card)
+        return MadLib.collect_vars(number_format(card.ability.extra),
+            localize(Overloaded.Funcs.get_joker_hand(card, 'Two Pair'), 'poker_hands'),
+            number_format(card.ability.mult))
+    end,
+    calculate = function(self, card, context)
+        if context.before and not context.blueprint and Overloaded.Funcs.get_joker_hand(card, 'Two Pair') then
+            -- See note about SMODS Scaling Manipulation on the wiki
+            card.ability.extra.mult = MadLib.add(card.ability.mult, card.ability.extra)
+            return {
+                message = localize('k_upgrade_ex'),
+                colour = G.C.RED
+            }
+        end
+        if context.joker_main and MadLib.is_positive_number(card.ability.mult) then
+            return {
+                mult = card.ability.mult
+            }
+        end
+    end
+}, true)
+
+-- Ancient Joker
+SMODS.Joker:take_ownership('ancient', {
+    config = { extra = 1.5 },
+    loc_vars = function(self, info_queue, card)
+        local suit = Overloaded.Funcs.get_joker_suit(card, (G.GAME.current_round.ancient_card or {}).suit or 'Spades')
+        return { vars = { card.ability.extra.xmult, localize(suit, 'suits_singular'), colours = { G.C.SUITS[suit] } } }
+    end,
+    calculate = function(self, card, context)
+        if 
+            context.individual 
+            and context.cardarea == G.play
+            and context.other_card:is_suit(Overloaded.Funcs.get_joker_suit(card, (G.GAME.current_round.ancient_card or {}).suit or 'Spades'))
+        then
+            return { xmult = card.ability.extra }
+        end
+    end
+}, true)
+
+-- To-Do List
+SMODS.Joker:take_ownership('todo_list', {
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extra.dollars, localize(Overloaded.Funcs.get_joker_hand(card, 'High Card'), 'poker_hands') } }
+    end,
+	calculate = function(self, card, context)
+        if context.before and context.scoring_name == Overloaded.Funcs.get_joker_hand(card, 'High Card') then
+            G.GAME.dollar_buffer = (G.GAME.dollar_buffer or 0) + card.ability.extra.dollars
+            return {
+                dollars = card.ability.extra.dollars,
+                func = function()
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            G.GAME.dollar_buffer = 0
+                            return true
+                        end
+                    }))
+                end
+            }
+        end
+        if context.end_of_round and context.game_over == false and context.main_eval and not context.blueprint then
+            local _poker_hands = {}
+            for handname, _ in pairs(G.GAME.hands) do
+                if SMODS.is_poker_hand_visible(handname) and handname ~= Overloaded.Funcs.get_joker_hand(card, 'High Card') then
+                    _poker_hands[#_poker_hands + 1] = handname
+                end
+            end
+            if card.ability.override_poker_hand then card.ability.override_poker_hand = nil end
+            card.ability.extra.poker_hand = pseudorandom_element(_poker_hands, 'todo_list')
+            return {
+                message = localize('k_reset')
+            }
+        end
+	end,
+}, true)
 
 -- High Priestess uses config.planets for generation
 -- Emperor uses config.tarots for generation

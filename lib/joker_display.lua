@@ -17,8 +17,8 @@ if JokerDisplay then
             for _, scoring_card in pairs(scoring_hand) do
                 mult = MadLib.has_fib_rank(scoring_card)
                     and MadLib.add(mult, MadLib.multiply(MadLib.is_base_rank(card) 
-                        and card.ability.extra.mult 
-                        or card.ability.extra.mult2, JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)))
+                        and card.ability.extra 
+                        or card.ability.extra, JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)))
                     or mult
             end
         end

@@ -190,7 +190,6 @@ SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, f
         end
     end
     if modded_value then
-        print('New amount is ' .. number_format(modded_value) .. '.')
         return calculate_effect_ref(effect, scored_card, key, modded_value, from_edition)
     end
 	return calculate_effect_ref(effect, scored_card, key, amount, from_edition)
@@ -225,4 +224,14 @@ function get_highest(hand)
 		return Overloaded.Funcs.get_lowest(hand)
 	end
 	return highest_ref(hand)
+end
+
+local mult_modify_ref = SMODS.Scoring_Parameters["mult"].calc_effect
+SMODS.Scoring_Parameters["mult"].calc_effect = function(self, effect, scored_card, key, amount, from_edition)
+	return mult_modify_ref(self, effect, scored_card, key, amount, from_edition)
+end
+
+local chips_modify_ref = SMODS.Scoring_Parameters["chips"].calc_effect
+SMODS.Scoring_Parameters["chips"].calc_effect = function(self, effect, scored_card, key, amount, from_edition)
+	return chips_modify_ref(self, effect, scored_card, key, amount, from_edition)
 end

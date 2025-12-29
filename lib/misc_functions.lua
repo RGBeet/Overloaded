@@ -69,7 +69,8 @@ end
 
 function Overloaded.Funcs.get_rarity(self, card)
     local ret = (card and card.ability.override_rarity) or (self and self.config.center.rarity)
-    print("Override: " .. tostring((card and card.ability.override_rarity) and "YES" or "NO"))
+	print(ret)
+    --print("Override: " .. tostring((card and card.ability.override_rarity) and "YES" or "NO"))
     return ret
 end
 

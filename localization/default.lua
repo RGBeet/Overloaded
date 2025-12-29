@@ -155,11 +155,42 @@ return {
                     "the {C:attention}lowest{} ranking card"
                 }
             },
+            j_rgol_running_joker = {
+                name = "Running Joker",
+                text = {
+                    "Add {C:mult}+#1#{} Mult to",
+                    "{C:attention}all{} {C:mult}Mult{} values",
+                    "for every {V:1}#2#{} Joker",
+                    "{C:inactive,s:0.8}(Currently {C:mult,s:0.8}+#3#{C:inactive,s:0.8} Mult)"
+                }
+            },
+            j_rgol_your_favorite_joker = {
+                name = "Your Favorite Joker",
+                text = {
+                    "{C:attention}#1#s{} also count as {C:attentions}#2#s{}"
+                }
+            },
+            j_road_work_ahead = {
+                name = "Road Work Ahead",
+                text = {
+                    "Changes suits on",
+                    "{C:attention}leftmost{} compatible Joker",
+                    "to {V:1}#1#s"
+                }
+            },
             j_rgol_quasicolon = {
                 name = "Quasicolon",
                 text = {
-                    "Forcefully triggers",
-                    "a random card"
+                    {
+                        "Force-trigger the {C:attention}Joker{}",
+                        "to the right whenever",
+                        "the {C:attention}Joker{} to the left",
+                        "would normally trigger"
+                    },
+                    {
+                        "{C:inactive,s:0.8}\"You know, {C:rgol_overclocked,s:0.8}Quasicolon{C:inactive,s:0.8} predicted all this...\"",
+                        "{C:inactive,s:0.8} -Bobby Baccalieri"
+                    }
                 }
             },
             -- fixes

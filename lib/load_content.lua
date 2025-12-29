@@ -78,6 +78,13 @@ Overloaded.Directories = {
             d.discovered        = d.discovered or true
         end
     },
+	['consumeables'] = {
+		['elemental'] = {
+			pass = function()
+				return true
+			end
+		}
+	}
 }
 loop_directories(Overloaded.Directories)
 

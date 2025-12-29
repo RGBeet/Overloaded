@@ -1,6 +1,103 @@
-
 return {
 	descriptions = {
+        OverloadedElemental = {
+            -- Three Primes
+            c_rgol_sulfur = {
+                name = "Sulfur",
+                text = {
+                    "???"
+                }
+            },
+            c_rgol_mercury = {
+                name = "Mercury",
+                text = {
+                    "???"
+                }
+            },
+            c_rgol_salt = {
+                name = "Salt",
+                text = {
+                    "{C:attention}Resets{} a selected {C:attention}Joker{},",
+                    "removing all {C:attention}overrides",
+                }
+            },
+            -- Basic Elements
+            c_rgol_air = {
+                name = "Air",
+                text = {
+                    "Select a Joker,",
+                    "then multiply its {C:chips}chip{} values",
+                    "by {X:chips, C:white} X#1# {}"
+                }
+            },
+            c_rgol_fire = {
+                name = "Fire",
+                text = {
+                    "Select a Joker,",
+                    "then randomize its",
+                    "target {C:attention}suit{C:inactive}(s)"
+                }
+            },
+            c_rgol_water = {
+                name = "Water",
+                text = {
+                    "Select a Joker,",
+                    "then randomize its",
+                    "target {C:attention}rank{C:inactive}(s)"
+                }
+            },
+            c_rgol_earth = {
+                name = "Earth",
+                text = {
+                    "Select a Joker,",
+                    "then multiply its {C:mult}mult{} values",
+                    "by {X:mult, C:white} X#1# {}"
+                }
+            },
+            -- Basic Elements
+            c_rgol_silver = {
+                name = "Silver",
+                text = {
+                    "???"
+                }
+            },
+            c_rgol_gold = {
+                name = "Gold",
+                text = {
+                    "???"
+                }
+            },
+            c_rgol_quicksilver = {
+                name = "Quicksilver",
+                text = {
+                    "???"
+                }
+            },
+            c_rgol_copper = {
+                name = "Copper",
+                text = {
+                    "???"
+                }
+            },
+            c_rgol_iron = {
+                name = "Iron",
+                text = {
+                    "???"
+                }
+            },
+            c_rgol_tin = {
+                name = "Tin",
+                text = {
+                    "???"
+                }
+            },
+            c_rgol_lead = {
+                name = "Lead",
+                text = {
+                    "???"
+                }
+            },
+        },     
         Joker = {
             j_rgol_syzygy = {
                 name = "Syzygy",
@@ -47,7 +144,7 @@ return {
             j_rgol_crazy_eights = {
                 name = "Crazy Eights",
                 text = {
-                    "All {V:1}#1#{}",
+                    "All {C:attention}#1#{}",
                     "count as {C:attention}#2#s{}"
                 }
             },
@@ -56,6 +153,13 @@ return {
                 text = {
                     "{C:attention}High Card{} now scores",
                     "the {C:attention}lowest{} ranking card"
+                }
+            },
+            j_rgol_quasicolon = {
+                name = "Quasicolon",
+                text = {
+                    "Forcefully triggers",
+                    "a random card"
                 }
             },
             -- fixes
@@ -263,12 +367,72 @@ return {
                     "{C:inactive}({C:attention}#1#{C:inactive} -> {C:attention}#2#{C:inactive})"
                 }
             },
+            rgol_modified_ranks_2 = {
+                name = { 'Modified Ranks (2)' },
+                text = {
+                    "This card has {C:attention}2{}",
+                    "{C:attention}modified{} rank values",
+                    "1. {C:inactive}({C:attention}#1#{C:inactive} -> {C:attention}#2#{C:inactive})",
+                    "2. {C:inactive}({C:attention}#3#{C:inactive} -> {C:attention}#4#{C:inactive})"
+                }
+            },
+            rgol_modified_ranks_3 = {
+                name = { 'Modified Ranks (3)' },
+                text = {
+                    "This card has {C:attention}3{}",
+                    "{C:attention}modified{} rank values",
+                    "1. {C:inactive}({C:attention}#1#{C:inactive} -> {C:attention}#2#{C:inactive})",
+                    "2. {C:inactive}({C:attention}#3#{C:inactive} -> {C:attention}#4#{C:inactive})",
+                    "2. {C:inactive}({C:attention}#5#{C:inactive} -> {C:attention}#6#{C:inactive})"
+                }
+            },
+            rgol_modified_ranks_4 = {
+                name = { 'Modified Ranks (4)' },
+                text = {
+                    "This card has {C:attention}4{}",
+                    "{C:attention}modified{} rank values",
+                    "1. {C:inactive}({C:attention}#1#{C:inactive} -> {C:attention}#2#{C:inactive})",
+                    "2. {C:inactive}({C:attention}#3#{C:inactive} -> {C:attention}#4#{C:inactive})",
+                    "2. {C:inactive}({C:attention}#5#{C:inactive} -> {C:attention}#6#{C:inactive})",
+                    "2. {C:inactive}({C:attention}#7#{C:inactive} -> {C:attention}#8#{C:inactive})",
+                }
+            },
             rgol_modified_suit = {
                 name = { 'Modified Suit' },
                 text = {
                     "This card has a",
                     "{C:attention}modified{} suit value",
-                    "{C:inactive}({C:attention}#1#{C:inactive} -> {C:attention}#2#{C:inactive})"
+                    "{C:inactive}({V:1}#1#{C:inactive} -> {V:2}#2#{C:inactive})"
+                }
+            },
+            rgol_modified_suits_2 = {
+                name = { 'Modified Suits (2)' },
+                text = {
+                    "This card has {C:attention}2{}",
+                    "{C:attention}modified{} suit values",
+                    "{C:inactive}({V:1}#1#{C:inactive} -> {V:2}#2#{C:inactive})",
+                    "{C:inactive}({V:3}#3#{C:inactive} -> {V:4}#4#{C:inactive})",
+                }
+            },
+            rgol_modified_suits_3 = {
+                name = { 'Modified Suits (3)' },
+                text = {
+                    "This card has {C:attention}3{}",
+                    "{C:attention}modified{} suit values",
+                    "{C:inactive}({V:1}#1#{C:inactive} -> {V:2}#2#{C:inactive})",
+                    "{C:inactive}({V:3}#3#{C:inactive} -> {V:4}#4#{C:inactive})",
+                    "{C:inactive}({V:5}#5#{C:inactive} -> {V:6}#6#{C:inactive})",
+                }
+            },
+            rgol_modified_suits_4 = {
+                name = { 'Modified Suits (4)' },
+                text = {
+                    "This card has {C:attention}4{}",
+                    "{C:attention}modified{} suit values",
+                    "{C:inactive}({V:1}#1#{C:inactive} -> {V:2}#2#{C:inactive})",
+                    "{C:inactive}({V:3}#3#{C:inactive} -> {V:4}#4#{C:inactive})",
+                    "{C:inactive}({V:5}#5#{C:inactive} -> {V:6}#6#{C:inactive})",
+                    "{C:inactive}({V:7}#7#{C:inactive} -> {V:8}#8#{C:inactive})",
                 }
             },
             rgol_modified_poker_hand = {
@@ -315,6 +479,9 @@ return {
         dictionary = {
 			k_rgol_strange          = "Strange",
 			k_rgol_overclocked      = "Overclocked",
+
+			k_overloadedelemental        = "Elemental Card",
+			b_overloadedelemental_cards  = "Elemental Cards",
         },
     }
 }

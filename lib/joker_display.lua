@@ -89,7 +89,7 @@ if JokerDisplay then
         end
         card.joker_display_values.mult  = mult
         card.joker_display_values.chips = chips
-        card.joker_display_values.localized_text = "(" .. localize("k_aces") .. ")"
+        card.joker_display_values.localized_text = "(" .. localize(card.ability.rank or "Ace", "ranks") .. ")"
     end
 
     -- Sixth Sense
@@ -222,7 +222,7 @@ if JokerDisplay then
         if text ~= 'Unknown' then
             for _, scoring_card in pairs(scoring_hand) do
                 if MadLib.list_matches_one(card.ability.ranks, function(v)
-                    return MadLib.is_rank(context.other_card, v)
+                    return MadLib.is_rank(scoring_card, v)
                 end) then
                     count = count + JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)
                 end

@@ -30,5 +30,6 @@ return {
                 }
             end
         end,
+        demicoloncompat = false,
     }
 }

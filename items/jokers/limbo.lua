@@ -16,5 +16,6 @@ return {
         remove_from_deck = function(self, card, from_debuff)
             G.GAME.low_card_active = (#SMODS.find_card('rgol_limbo', true) > 0)
         end,
+        demicoloncompat = false,
     }
 }

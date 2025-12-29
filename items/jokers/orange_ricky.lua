@@ -22,5 +22,6 @@ return {
                 return { add_rank = card.ability.rank or '4' }
             end
         end,
+        demicoloncompat = false,
     }
 }

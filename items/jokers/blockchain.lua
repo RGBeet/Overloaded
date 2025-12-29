@@ -8,6 +8,7 @@ return {
         atlas   = 'placeholder',
         pos     = MLIB.coords(0,0),
         rarity  = 'rgol_overclocked',
+	    blueprint_compat = false,
         cost    = 9,
         config = { extra = { xchip_mod = 0.05, dollars = 7 } },
         loc_vars = function(self, info_queue, card)
@@ -25,5 +26,6 @@ return {
                 }
             end
         end,
+        demicoloncompat = false,
     }
 }

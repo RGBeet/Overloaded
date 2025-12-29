@@ -66,6 +66,21 @@ function MadLib.set_joker_ui(card, info_queue, specific_vars, desc_nodes)
                 }
             }
         end
+        if card.ability.override_ranks then
+            local list = Overloaded.Funcs.get_original_ranks(card)
+            local vars = {}
+            for i=1,#list do
+                vars[#vars+1] = localize(list[i], 'ranks')
+                vars[#vars+1] = localize(card.ability.override_ranks[i], 'ranks')
+            end
+            if #list < 5 then
+                info_queue[#info_queue + 1] = {
+                    set = 'Other',
+                    key = 'rgol_modified_ranks_'..(#list),
+                    vars = vars
+                }
+            end
+        end
         if card.ability.override_suit then
             info_queue[#info_queue + 1] = {
                 set = 'Other',
@@ -76,6 +91,24 @@ function MadLib.set_joker_ui(card, info_queue, specific_vars, desc_nodes)
                     colours = { G.C.SUITS[card.ability.suit], G.C.SUITS[card.ability.override_suit] }
                 }
             }
+        end
+        if card.ability.override_suits then
+            local list = Overloaded.Funcs.get_original_suits(card)
+            local vars = {}
+            local colours = {}
+            for i=1,#list do
+                vars[#vars+1] = localize(list[i], 'suits_plural')
+                vars[#vars+1] = localize(card.ability.override_suits[i], 'suits_plural')
+                colours[#colours+1] = G.C.SUITS[card.ability.suit]
+                colours[#colours+1] =   G.C.SUITS[card.ability.override_suits[i]]
+            end
+            if #list < 5 then
+                info_queue[#info_queue + 1] = {
+                    set = 'Other',
+                    key = 'rgol_modified_suits_'..(#list),
+                    vars = vars
+                }
+            end
         end
         if card.ability.override_poker_hand then
             info_queue[#info_queue + 1] = {
@@ -93,7 +126,14 @@ end
 
 local joker_check_rank_ref = MadLib.joker_check_rank
 function MadLib.joker_check_rank(card, joker, default)
-    if joker.ability.override_rank then return MadLib.is_rank(card, SMODS.Ranks[joker.ability.override_rank].id) end
+    if joker.ability.override_rank then 
+        return MadLib.is_rank(card, joker.ability.override_rank)
+    end
+    if joker.ability.override_ranks then
+        return MadLib.list_matches_one(joker.ability.override_ranks, function(v)
+            return MadLib.is_rank(card, v)
+        end)
+    end
     return joker_check_rank_ref(card, joker, default)
 end
 

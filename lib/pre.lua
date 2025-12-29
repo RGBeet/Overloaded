@@ -47,3 +47,15 @@ Overloaded.Lists.MoneyModKeys = {
 MadLib.loop_table(SMODS.Ranks, function(k,v)
     if math.floor(v.nominal) <= 5 then table.insert(Overloaded.Lists.Hack, v.key) end
 end)
+
+SMODS.ConsumableType({
+    key = "OverloadedElemental",
+    primary_colour = HEX("659B00"),
+    secondary_colour = HEX("486024"),
+    collection_rows = { 3, 2 },
+    shop_rate = 0.10,
+    --loc_txt = {},
+    default = "c_rgol_water",
+    can_stack = true,
+    can_divide = true,
+})

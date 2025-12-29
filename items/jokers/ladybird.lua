@@ -40,5 +40,6 @@ return {
                 end
             end
         end,
+        demicoloncompat = false,
     }
 }

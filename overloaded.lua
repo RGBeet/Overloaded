@@ -6,6 +6,7 @@ local files = {
     'misc_functions',
     'vanilla_override',
     'rarity',
+    'quasicolon',
     'joker_display',
     'load_content',
 }

@@ -453,19 +453,19 @@ function Overloaded.Funcs.get_joker_hands(card, default)
 end
 
 function Overloaded.Funcs.get_original_rank(card)
-    return get_vals(card, 'rank')
+    return get_vals(card, '???', 'rank')
 end
 
 function Overloaded.Funcs.get_original_ranks(card)
-    return get_vals(card, 'ranks')
+    return get_vals(card, 'ranks', 'ranks')
 end
 
 function Overloaded.Funcs.get_original_suit(card)
-    return get_vals(card, 'suit')
+    return get_vals(card, 'suit', 'suit')
 end
 
 function Overloaded.Funcs.get_original_suits(card)
-    return get_vals(card, 'suits')
+    return get_vals(card, 'suits', 'suits')
 end
 
 function Overloaded.Funcs.get_original_poker_hand(card)

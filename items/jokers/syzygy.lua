@@ -21,8 +21,10 @@ return {
             then
                 local planet    = context.other_card 
                 local hand      = planet.ability.hand_type
-                planet.ability.planet_chips   = MadLib.multiply(G.GAME.hands[hand].l_chips, card.ability.extra.x_mult)
-                planet.ability.planet_mult    = MadLib.multiply(G.GAME.hands[hand].l_mult, card.ability.extra.x_mult)
+                planet.ability.planet_chips   = MadLib.multiply(MadLib.add(planet.ability.planet_chips or 0, G.GAME.hands[hand].l_chips), card.ability.extra.x_mult)
+                planet.ability.planet_mult    = MadLib.multiply(MadLib.add(planet.ability.planet_mult or 0, G.GAME.hands[hand].l_mult), card.ability.extra.x_mult)
+                planet.overclock_cost         = MadLib.add(planet.overclock_cost, math.ceil(MadLib.multiply(level, 0.25)))
+                planet:set_cost()
                 return {
                     message = "!",
                     card    = planet,

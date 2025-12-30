@@ -42,4 +42,12 @@ payload = '''if AUT.card_type == 'Joker' or (AUT.badges and AUT.badges.force_rar
 match_indent = true
 
 
-# X of a kind: add is_rank
+# Add overclock cost when applicable
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''self.cost = math.max(1, math.floor((self.base_cost + self.extra_cost + 0.5)*(100-G.GAME.discount_percent)/100))'''
+position = 'after'
+payload = '''self.cost = math.max(1, MadLib.add(self.cost, self.overclock_cost))'''
+match_indent = true

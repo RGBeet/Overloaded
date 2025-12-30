@@ -108,6 +108,15 @@ return {
                     "{C:attention}X#3#{} values"
                 }
             },
+            j_rgol_neptunian = {
+                name = "Neptunian",
+                text = {
+                    "Add {C:attention}half{} the",
+                    "{C:chips}Chips{} and {C:mult}Mult",
+                    "of {C:attention}Straight Flush{}",
+                    "to all spawned {C:planet}Planet{} cards"
+                }
+            },
             j_rgol_lazzarone = {
                 name = "Lazzarone",
                 text = {
@@ -161,7 +170,7 @@ return {
                     "Add {C:mult}+#1#{} Mult to",
                     "{C:attention}all{} {C:mult}Mult{} values",
                     "for every {V:1}#2#{} Joker",
-                    "{C:inactive,s:0.8}(Currently {C:mult,s:0.8}+#3#{C:inactive,s:0.8} Mult)"
+                    "{C:inactive,s:0.8}(Currently {C:mult,s:0.8}+#3#{C:inactive,s:0.8} Mult)",
                 }
             },
             j_rgol_your_favorite_joker = {
@@ -170,8 +179,32 @@ return {
                     "{C:attention}#1#s{} also count as {C:attentions}#2#s{}"
                 }
             },
-            j_road_work_ahead = {
+            j_rgol_juggernaut = {
+                name = "Juggernaut",
+                text = {
+                    "Upgrades {C:attention}operator{} of",
+                    "all Mult operations"
+                }
+            },
+            j_rgol_road_work_ahead = {
                 name = "Road Work Ahead",
+                text = {
+                    "Changes suits on",
+                    "{C:attention}leftmost{} compatible Joker",
+                    "to {V:1}#1#s"
+                }
+            },
+            j_rgol_card_shark = {
+                name = "Card Shark",
+                text = {
+                    "{C:chips}+X#1#{} Value",
+                    "to all {C:attention}chip operations",
+                    "per remaining card in deck",
+                    "{C:inactive,s:0.8}(Currently {C:chips,s:0.8}+X#2#{C:inactive,s:0.8} Chips)"
+                }
+            },
+            j_rgol_wee_wee_joker = {
+                name = "Wee, Wee Joker",
                 text = {
                     "Changes suits on",
                     "{C:attention}leftmost{} compatible Joker",
@@ -547,6 +580,21 @@ return {
                     "This card has a",
                     "{C:attention}modified{} suit value",
                     "{C:inactive}({C:attention}#1#{C:inactive} -> {C:attention}#2#{C:inactive})"
+                }
+            },
+            -- info for cool ass cards
+            rgol_info_infinity = {
+                text = {
+                    "Count as {C:rgmc_bismuth}every rank{}",
+                    "{C:inactive,s:0.7}Only works with",
+                    "{C:inactive,s:0.7}Madcap-supported mods!"
+                }
+            },
+            rgol_info_sum = {
+                text = {
+                    "{C:chips}+(SUM){} chips",
+                    "{C:inactive,s:0.7}Equals the sum of",
+                    "{C:inactive,s:0.7}all played {C:attention,S:0.7}number {C:inactive,S:0.7}ranks"
                 }
             },
         },

@@ -495,7 +495,7 @@ function Overloaded.Funcs.quasi_check(card, cards, context, do_secondary_check)
     if card.ability.set == 'Joker' then
         card = Overloaded.Funcs.quasi_handle_blueprint(card, cards)
         results = Overloaded.Funcs.quasi_check_vanilla_joker(card, context, do_secondary_check)
-        if results then print(results) end
+        --if results then print(results) end
     end
     return results or false
 end
@@ -1002,7 +1002,7 @@ function Overloaded.Funcs.quasi_trigger_vanilla_joker(card, context, do_extra_ac
 			})
 		end
     end
-    print(results)
+    --print(results)
     results.card = results.card or card
     key = nil
     return results

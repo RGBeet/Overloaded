@@ -1,6 +1,7 @@
 
 local files = {
     'pre',
+    'operators',
     'atlas',
     'hooks',
     'misc_functions',

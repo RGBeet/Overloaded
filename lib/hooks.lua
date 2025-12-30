@@ -145,6 +145,33 @@ function Overloaded.Funcs.get_stat_sound(type)
         or 'rgol_mod_stat'
 end
 
+function Overloaded.Funcs.edit_operator_string(str, opts)
+    -- opts = { operator = string?, amount = number?, suffix = string? }
+
+    local op, amount, suffix = string.match(str, "^(%D+)([%d%.%-]+)%s*(.*)$")
+    if not op then return str end
+
+    if opts.operator then
+        op = opts.operator
+    end
+
+    if opts.amount then
+        amount = tostring(opts.amount)
+    end
+
+    if opts.suffix then
+        suffix = opts.suffix
+    end
+
+    suffix = suffix or ""
+
+    if suffix ~= "" then
+        return op .. amount .. " " .. suffix
+    else
+        return op .. amount
+    end
+end
+
 local calculate_effect_ref = SMODS.calculate_individual_effect
 SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, from_edition)
     G.GAME.modifiers.overloaded_chips_mod   = G.GAME.modifiers.overloaded_chips_mod or 1
@@ -155,8 +182,10 @@ SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, f
             if v.config.center.modify_individual_effect then
                 local data = v.config.center:modify_individual_effect(v, key, scored_card)
                 if data then
+                    local new_message = MadLib.deep_copy(effect.message)
                     if data.a_mod then
                         modded_value = MadLib.add(modded_value or amount, data.a_mod)
+                        new_message = Overloaded.Funcs.edit_operator_string(effect.message, { amount = modded_value })
                         Overloaded.temp.pitches['mod'] = Overloaded.temp.pitches['mod'] + 0.08
 				        card_eval_status_text(v, 'extra', nil, nil, nil, {
                             message = '+' .. data.a_mod .. " Values", 
@@ -167,6 +196,7 @@ SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, f
                     end
                     if data.x_mod then
                         modded_value = MadLib.multiply(modded_value or amount, data.x_mod)
+                        new_message = Overloaded.Funcs.edit_operator_string(effect.message, { amount = modded_value })
                         Overloaded.temp.pitches['mod'] = Overloaded.temp.pitches['mod'] + 0.08
 				        card_eval_status_text(v, 'extra', nil, nil, nil, {
                             message = 'X' .. data.x_mod .. " Values", 
@@ -177,6 +207,7 @@ SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, f
                     end
                     if data.e_mod then
                         modded_value = MadLib.exponent(modded_value or amount, data.e_mod)
+                        new_message = Overloaded.Funcs.edit_operator_string(effect.message, { amount = modded_value })
                         Overloaded.temp.pitches['mod'] = Overloaded.temp.pitches['mod'] + 0.08
 				        card_eval_status_text(v, 'extra', nil, nil, nil, {
                             message = '^' .. data.e_mod .. " Values", 
@@ -185,6 +216,31 @@ SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, f
                             colour  = data.colour
                         })
                     end
+                    if data.upgrade == 'mult' then
+                        key, modded_value = Overloaded.Funcs.get_mult_operator_upgrade(key, amount)
+                        if key == 'mult' or key == 'mult_mod' or key == 'h_mult' then
+                            new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "+", amount = modded_value })
+                        elseif key == 'x_mult' or key == 'xmult' or key == 'Xmult_mod' then
+                            new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "X", amount = modded_value })
+                        elseif key == 'e_mult' or key == 'emult' or key == 'Emult_mod' then
+                            new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "^", amount = modded_value })
+                        elseif key == 'ee_mult' or key == 'eemult' or key == 'EEmult_mod' then
+                            new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "^^", amount = modded_value })
+                        end
+                    elseif data.upgrade == 'chips' then
+                        key, modded_value = Overloaded.Funcs.get_chips_operator_upgrade(key, amount)
+                        if key == 'chips' or key == 'chip_mod' or key == 'h_chips' then
+                            new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "+", amount = modded_value })
+                        elseif key == 'x_chips' or key == 'xchips' or key == 'Xchip_mod' then
+                            new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "X", amount = modded_value })
+                        elseif key == 'e_chips' or key == 'echips' or key == 'Echip_mod' then
+                            new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "^", amount = modded_value })
+                        elseif key == 'ee_chips' or key == 'eechips' or key == 'EEchip_mod' then
+                            new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "^^", amount = modded_value })
+                        end
+                    end
+                    effect.message = new_message
+                    new_message = nil
                 end
             end
         end

@@ -22,7 +22,7 @@ return {
         end,
         modify_individual_effect = function(self, card, key, scored_card)
             if Overloaded.Lists.MultModKeys[key] then -- is a mult value
-                if not (key == 'mult' or key == 'h_mult' or key == 'mult_mod') then return {} end -- don't do x_mult 
+                if not (key == 'mult' or key == 'h_mult' or key == 'mult_mod') then return {} end -- don't do x_mult
                 local matches = MadLib.loop_func((card.area or G.jokers).cards, function(v)
                     return Overloaded.Funcs.get_rarity(v) == card.ability.extra.rarity
                 end)

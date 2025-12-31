@@ -333,4 +333,59 @@ if JokerDisplay then
         card.joker_display_values.localized_text_clubs = localize(target_suit, 'suits_singular')
         card.joker_display_values.localized_text_other = localize('k_other')
     end
+
+
+    MadLib.loop_func({
+        {'jolly', 'Pair'},
+        {'zany', 'Three of a Kind'},
+        {'mad', 'Two Pair'},
+        {'crazy', 'Straight'},
+        {'droll', 'Flush'},
+    }, function (joker)
+        jod['j_'..joker[1]].calc_function = function(card)
+            local hand  = Overloaded.Funcs.get_joker_hand(card, joker[2])
+            local mult  = 0
+            local _, poker_hands, _ = JokerDisplay.evaluate_hand()
+            if poker_hands[hand] and next(poker_hands[hand]) then mult = card.ability.t_mult end
+            card.joker_display_values.mult = mult
+            card.joker_display_values.localized_text = localize(hand, 'poker_hands')
+        end
+    end)
+
+    MadLib.loop_func({
+        {'sly', 'Pair'},
+        {'wily', 'Three of a Kind'},
+        {'clever', 'Two Pair'},
+        {'devious', 'Straight'},
+        {'crafty', 'Flush'},
+    }, function (joker)
+        jod['j_'..joker[1]].calc_function = function(card)
+            local hand  = Overloaded.Funcs.get_joker_hand(card, joker[2])
+            local chips = 0
+            local _, poker_hands, _ = JokerDisplay.evaluate_hand()
+            if poker_hands[hand] and next(poker_hands[hand]) then chips = card.ability.t_chips end
+            card.joker_display_values.chips = chips
+            card.joker_display_values.localized_text = localize(hand, 'poker_hands')
+        end
+    end)
+
+    MadLib.loop_func({
+        {'duo', 'Pair'},
+        {'trio', 'Three of a Kind'},
+        {'family', 'Four of a Kind'},
+        {'order', 'Straight'},
+        {'tribe', 'Flush'},
+    }, function (joker)
+        jod['j_'..joker[1]].calc_function = function(card)
+            local hand  = Overloaded.Funcs.get_joker_hand(card, joker[2])
+
+            local x_mult = 1
+            local _, poker_hands, _ = JokerDisplay.evaluate_hand()
+            if poker_hands[hand] and next(poker_hands[hand]) then
+                x_mult = card.ability.x_mult
+            end
+            card.joker_display_values.x_mult = x_mult
+            card.joker_display_values.localized_text = localize(hand, 'poker_hands')
+        end
+    end)
 end

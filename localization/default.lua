@@ -150,6 +150,15 @@ return {
                     "count as {C:attention}#2#s{}"
                 }
             },
+            j_rgol_bonfire = {
+                name = "Bonfire",
+                text = {
+                    "Change target poker hand",
+                    "of random compatible Joker",
+                    "to first discarded poker hand",
+                    "each round"
+                }
+            },
             j_rgol_crazy_eights = {
                 name = "Crazy Eights",
                 text = {
@@ -209,6 +218,13 @@ return {
                     "Changes suits on",
                     "{C:attention}leftmost{} compatible Joker",
                     "to {V:1}#1#s"
+                }
+            },
+            j_rgol_tiebreaker = {
+                name = "Tiebreaker",
+                text = {
+                    "Adds {C:attention}+#1#{} extra retrigger{C:inactive}(s)",
+                    "to all retrigger values"
                 }
             },
             j_rgol_quasicolon = {

@@ -147,6 +147,7 @@ end
 
 function Overloaded.Funcs.edit_operator_string(str, opts)
     -- opts = { operator = string?, amount = number?, suffix = string? }
+    if not (str and opts) then return nil end
 
     local op, amount, suffix = string.match(str, "^(%D+)([%d%.%-]+)%s*(.*)$")
     if not op then return str end

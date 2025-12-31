@@ -35,11 +35,11 @@ return {
                         end
                     })
                 elseif joker.ability.suits then
-                    
+
                     MadLib.event({
                         func = function()
-                            joker.ability.override_suits = { rank, nil }
-                            for i=2,#joker.ability.ranks do
+                            joker.ability.override_suits = { suit, nil }
+                            for i=2,#joker.ability.suits do
                                 joker.ability.override_suits[i] = MadLib.get_random_suit_from_cards(G.playing_cards)
                             end
                             print(joker.ability.override_suits)

@@ -493,9 +493,12 @@ function Overloaded.Funcs.quasi_check(card, cards, context, do_secondary_check)
     if not card then return false end
     local results
     if card.ability.set == 'Joker' then
+        if context.forcetrigger then return true end -- force trigger chain reaction?
+		local quasi_context = Cryptid.deep_copy(context)
         card = Overloaded.Funcs.quasi_handle_blueprint(card, cards)
-        results = Overloaded.Funcs.quasi_check_vanilla_joker(card, context, do_secondary_check)
-        --if results then print(results) end
+        quasi_context.checktrigger = true
+        results = Overloaded.Funcs.quasi_check_vanilla_joker(card, context, do_secondary_check) or eval_card(card, quasi_context)
+        quasi_context = nil
     end
     return results or false
 end
@@ -685,28 +688,28 @@ function Overloaded.Funcs.quasi_trigger_vanilla_joker(card, context, do_extra_ac
 				for _, v in ipairs(context.scoring_hand) do
 					if v:is_face() then
                         v:set_ability('m_gold', nil, true)
-						G.E_MANAGER:add_event(Event({
+						MadLib.event({
 							trigger = "after",
 							delay = 0.4,
 							func = function()
 								v:juice_up()
 								return true
 							end,
-						}))
+						})
 					end
 				end
 			elseif G and G.hand and #G.hand.highlighted > 0 then
 				for _, v in ipairs(G.hand.highlighted) do
 					if v:is_face() then
                         v:set_ability('m_gold', nil, true)
-						G.E_MANAGER:add_event(Event({
+						MadLib.event({
 							trigger = "after",
 							delay = 0.4,
 							func = function()
 								v:juice_up()
 								return true
 							end,
-						}))
+						})
 					end
 				end
 			end

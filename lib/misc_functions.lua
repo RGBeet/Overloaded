@@ -502,9 +502,21 @@ function Overloaded.Funcs.get_bootstrap_calc(value1, value2)
 	return MadLib.multiply(value1, math.floor(MadLib.divide(MadLib.add((G.GAME.dollars or 0), (G.GAME.dollar_buffer or 0)), value2)))
 end
 
-function Overloaded.Funcs.modify_chip_values(card, value)
+local modifyable = function(str)
+	return card.ability['override_'..str] or card.ability['override_'..str..'s']
+		or card.ability[str] or card.ability[str..'s'] or card.ability.extra[str] or card.ability.extra[str..'s']
+end
 
+function Overloaded.Funcs.can_modify_ranks(card)
+	return card and modifyable('rank')
+end
 
+function Overloaded.Funcs.can_modify_suits(card)
+	return card and modifyable('suits')
+end
+
+function Overloaded.Funcs.can_modify_poker_hand(card)
+	return card and (card.ability.type or card.ability.extra.type or card.ability.extra.poker_hand)
 end
 
 function Overloaded.Funcs.get_lowest(hand)
@@ -515,4 +527,84 @@ function Overloaded.Funcs.get_lowest(hand)
 		end
   	end
   	return #hand > 0 and {{ lowest }} or {}
+end
+
+function Overloaded.Funcs.modify_repetitions(eval, effect_card, _type)
+	local repetitions = eval.repetitions
+	MadLib.loop_func(G.jokers.cards, function(v)
+		if MadLib.is_joker(v, 'j_rgol_tiebreaker') then repetitions = repetitions + v.ability.extra end
+	end)
+	return repetitions
+end
+
+function Overloaded.Funcs.override_rank_singular(used_card, target, new_value)
+	if joker.ability.rank or (joker.ability.extra and joker.ability.extra.rank) then -- TODO: check if compatible?
+		MadLib.event({
+			func = function()
+				joker.ability.override_rank = new_value
+				used_card:juice_up(0.3, 0.5)
+				play_sound('rgol_modify_value')
+				return true
+			end
+		})
+	elseif target.ability.ranks or (joker.ability.extra and joker.ability.extra.ranks) then
+		MadLib.event({
+			func = function()
+				target.ability.override_suits = { new_value, nil }
+				for i=2,#target.ability.ranks do
+					target.ability.override_suits[i] = MadLib.get_random_suit_from_cards(G.playing_cards)
+				end
+                used_card:juice_up(0.3, 0.5)
+				play_sound('rgol_modify_value')
+				return true
+			end
+		})
+	end
+end
+
+function Overloaded.Funcs.override_suit_singular(used_card, target, new_value)
+	if joker.ability.suit then -- TODO: check if compatible?
+		MadLib.event({
+			func = function()
+				joker.ability.override_suit = new_value
+				used_card:juice_up(0.3, 0.5)
+				play_sound('rgol_modify_value')
+				return true
+			end
+		})
+	elseif target.ability.suits then
+		MadLib.event({
+			func = function()
+				target.ability.override_suits = { new_value, nil }
+				for i=2,#target.ability.ranks do
+					target.ability.override_suits[i] = MadLib.get_random_suit_from_cards(G.playing_cards)
+				end
+                used_card:juice_up(0.3, 0.5)
+				play_sound('rgol_modify_value')
+				return true
+			end
+		})
+	end
+end
+
+function Overloaded.Funcs.override_hand_singular(used_card, target, new_value)
+	if target.ability.type or target.ability.poker_hand or target.ability.extra.poker_hand then
+		MadLib.event({
+			func = function()
+				target.ability.override_poker_hand = new_value
+				used_card:juice_up(0.3, 0.5)
+				play_sound('rgol_modify_value')
+				return true
+			end
+		})
+	elseif target.ability.poker_hands or target.ability.extra.poker_hands then
+		MadLib.event({
+			func = function()
+				target.ability.override_poker_hands[1] = text
+                target:juice_up(0.3, 0.5)
+                play_sound('rgol_modify_value')
+                return true
+			end
+		})
+	end
 end

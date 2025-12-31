@@ -51,3 +51,14 @@ pattern = '''self.cost = math.max(1, math.floor((self.base_cost + self.extra_cos
 position = 'after'
 payload = '''self.cost = math.max(1, MadLib.add(self.cost, self.overclock_cost))'''
 match_indent = true
+
+
+# Add context for modding retriggers
+
+[[patches]]
+[patches.pattern]
+target = '''=[SMODS _ "src/utils.lua"]'''
+pattern = "eval.repetitions = eval.repetitions or 0"
+position = "after"
+payload = '''eval.repetitions = Overloaded.Funcs.modify_repetitions(eval, effect_card, _type)'''
+match_indent = true

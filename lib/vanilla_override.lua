@@ -273,7 +273,7 @@ SMODS.Joker:take_ownership('idol', {
 SMODS.Joker:take_ownership('hit_the_road', {
     config = { extra = 0.5, rank = 'Jack' },
     loc_vars = function(self, info_queue, card)
-        return MadLib.collect_vars(card.ability.extra.Xmult, card.ability.extra, localize(Overloaded.Funcs.get_joker_rank(card, 'Jack'), 'ranks'))
+        return MadLib.collect_vars(card.ability.Xmult, card.ability.extra, localize(Overloaded.Funcs.get_joker_rank(card, 'Jack'), 'ranks'))
     end,
     calculate = function(self, card, context)
         if 
@@ -283,9 +283,9 @@ SMODS.Joker:take_ownership('hit_the_road', {
         then
             local amt = context.other_card:get_quantity_value()
             if amt > 0 then
-                card.ability.extra.Xmult = MadLib.add(card.ability.extra.Xmult, MadLib.multiply(card.ability.extra.xmult_gain, amt))
+                card.ability.Xmult = MadLib.add(card.ability.Xmult, MadLib.multiply(card.ability.extra, amt))
                 return {
-                    message = localize { type = 'variable', key = 'a_xmult', vars = { card.ability.extra.x_mult } },
+                    message = localize { type = 'variable', key = 'a_xmult', vars = { card.ability.Xmult } },
                     colour = G.C.RED
                 }
             end
@@ -297,12 +297,12 @@ SMODS.Joker:take_ownership('hit_the_road', {
             and context.main_eval
             and not context.blueprint
         then
-            card.ability.extra.Xmult = 1
+            card.ability.Xmult = 1
             return { message = localize('k_reset'), colour = G.C.RED }
         end
 
         if context.joker_main then
-            return { xmult = card.ability.extra.Xmult }
+            return { xmult = card.ability.Xmult }
         end
     end
 }, true)

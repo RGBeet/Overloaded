@@ -195,6 +195,13 @@ return {
                     "all Mult operations"
                 }
             },
+            j_rgol_stairway_to_heaven = {
+                name = "Stairway to Heaven",
+                text = {
+                    "Replaces card {C:attention}ranks{} with",
+                    "rank {C:attention}above{} (e.g. Strength)"
+                }
+            },
             j_rgol_road_work_ahead = {
                 name = "Road Work Ahead",
                 text = {
@@ -613,6 +620,20 @@ return {
                     "{C:inactive,s:0.7}all played {C:attention,S:0.7}number {C:inactive,S:0.7}ranks"
                 }
             },
+			p_rgol_joker_pack1 = {
+				name = "Luxury Pack",
+				text = {
+					"Choose {C:attention}#1#{} of up to {C:attention}#2#{}",
+					"{C:rgol_strange}Peculiar{} goodies",
+				},
+			},
+			p_rgol_joker_pack2 = {
+				name = "Luxury Pack",
+				text = {
+					"Choose {C:attention}#1#{} of up to {C:attention}#2#{}",
+					"{C:rgol_strange}Peculiar{} goodies",
+				},
+			},
         },
     },
     misc = {

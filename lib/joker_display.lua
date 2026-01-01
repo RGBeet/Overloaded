@@ -16,9 +16,7 @@ if JokerDisplay then
         if text ~= 'Unknown' then
             for _, scoring_card in pairs(scoring_hand) do
                 mult = MadLib.has_fib_rank(scoring_card)
-                    and MadLib.add(mult, MadLib.multiply(MadLib.is_base_rank(card) 
-                        and card.ability.extra 
-                        or card.ability.extra, JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)))
+                    and MadLib.add(mult, MadLib.multiply(card.ability.extra, JokerDisplay.calculate_card_triggers(scoring_card, scoring_hand)))
                     or mult
             end
         end
@@ -206,7 +204,7 @@ if JokerDisplay then
             if playing_hand or not playing_card.highlighted then
                 if 
                     MadLib.JokerDisplay.valid_card(playing_card) 
-                    and Overloaded.Funcs.joker_check_rank(playing_card, card, 'Queen')
+                    and MadLib.joker_check_rank(playing_card, card, 'Queen')
                 then
                     mult = MadLib.add(mult, MadLib.multiply(card.ability.extra, JokerDisplay.calculate_card_triggers(playing_card, nil, true)))
                 end

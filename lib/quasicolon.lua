@@ -1010,7 +1010,6 @@ function Overloaded.Funcs.quasi_trigger_vanilla_joker(card, context, do_extra_ac
 			})
 		end
     end
-    --print(results)
     results.card = results.card or card
     key = nil
     return results

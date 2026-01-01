@@ -25,7 +25,9 @@ SMODS.Joker:take_ownership('fibonacci', {
             context.individual 
             and context.cardarea == G.play 
         then
-		    if MadLib.has_fib_rank(context.other_card) then
+            local h = MadLib.has_fib_rank(context.other_card)
+            print(h)
+		    if h then
 				return { mult = card.ability.extra, card = card }
 		    end
 		end
@@ -114,33 +116,38 @@ SMODS.Joker:take_ownership('scholar', {
 
 -- Sixth Sense
 SMODS.Joker:take_ownership('sixth_sense', {
-    config = { rank = '6' },
+    config = { rank = '6', active = false },
     loc_vars = function(self, info_queue, card)
         return MadLib.collect_vars(localize(Overloaded.Funcs.get_joker_rank(card, '6'), 'ranks'))
     end,
     calculate = function(self, card, context)
+        if 
+            context.after
+            and card.ability.active
+            and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit 
+        then
+            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                MadLib.simple_event(function()
+                    local n_card = create_card("Spectral", G.consumeables)
+                    n_card:add_to_deck()
+                    G.consumeables:emplace(n_card)
+                    G.GAME.consumeable_buffer = 0
+                    return true
+                end, 0.08, 'before')
+            card.ability.active = false
+            return {
+                message = localize('k_plus_spectral'),
+                colour = G.C.SECONDARY_SET.Spectral
+            }
+        end
         if context.destroy_card and not context.blueprint then
-            if 
+            if
                 #context.full_hand == 1 
                 and context.destroy_card == context.full_hand[1] 
                 and MadLib.joker_check_rank(context.destroy_card, card, '6')
                 and G.GAME.current_round.hands_played == 0 
             then
-                if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
-                    G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
-                    MadLib.event({
-                        func = function()
-                            SMODS.add_card { set = 'Spectral', key_append = 'sixth_sense' }
-                            G.GAME.consumeable_buffer = 0
-                            return true
-                        end
-                    })
-                    return {
-                        message = localize('k_plus_spectral'),
-                        colour = G.C.SECONDARY_SET.Spectral,
-                        remove = true
-                    }
-                end
+                card.ability.active = true -- fix to avoid 2x spectral spawning :(
                 return { remove = true }
             end
         end

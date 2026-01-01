@@ -69,8 +69,6 @@ end
 
 function Overloaded.Funcs.get_rarity(self, card)
     local ret = (card and card.ability.override_rarity) or (self and self.config.center.rarity)
-	print(ret)
-    --print("Override: " .. tostring((card and card.ability.override_rarity) and "YES" or "NO"))
     return ret
 end
 
@@ -414,7 +412,7 @@ end
     75, 100, 125, 150
 ]]
 
-local get_vals = function(card,default,x1,x2)
+function Overloaded.Funcs.get_vals(card,default,x1,x2)
 	return card.ability[x2] 
 		or (type(card.ability.extra) == 'table' and card.ability.extra[x1]) 
 		or card.ability[x1] 
@@ -422,20 +420,31 @@ local get_vals = function(card,default,x1,x2)
 end
 
 function Overloaded.Funcs.get_joker_rank(card, default)
-	return get_vals(card, default, 'rank', 'override_rank')
+	return Overloaded.Funcs.get_vals(card, default, 'rank', 'override_rank')
 end
 
 
 function Overloaded.Funcs.get_joker_ranks(card, default)
-	return get_vals(card, default, 'ranks', 'override_ranks')
+	return Overloaded.Funcs.get_vals(card, default, 'ranks', 'override_ranks')
 end
 
 function Overloaded.Funcs.get_joker_suit(card, default)
-	return get_vals(card, default, 'suit', 'override_suit')
+	local joker_override = nil
+	local jokers = G.jokers.cards
+	for i=1, #jokers do
+		local d = jokers[i].config.center.modify_joker_suit and jokers[i].config.center:modify_joker_suit(jokers[i], card, jokers)
+		joker_override = joker_override or (d ~= nil and d.set_override)
+	end
+	return joker_override or Overloaded.Funcs.get_vals(card, default, 'suit', 'override_suit')
+end
+
+if Madcap and Madcap.Funcs then
+	Madcap.Funcs.get_joker_suit = Overloaded.Funcs.get_joker_suit
+	print('Replaced!')
 end
 
 function Overloaded.Funcs.get_joker_suits(card, default)
-	return get_vals(card, default, 'suits', 'override_suits')
+	return Overloaded.Funcs.get_vals(card, default, 'suits', 'override_suits')
 end
 
 function Overloaded.Funcs.get_joker_hand(card, default)
@@ -455,19 +464,19 @@ function Overloaded.Funcs.get_joker_hands(card, default)
 end
 
 function Overloaded.Funcs.get_original_rank(card)
-    return get_vals(card, '???', 'rank')
+    return Overloaded.Funcs.get_vals(card, '???', 'rank')
 end
 
 function Overloaded.Funcs.get_original_ranks(card)
-    return get_vals(card, 'ranks', 'ranks')
+    return Overloaded.Funcs.get_vals(card, 'ranks', 'ranks')
 end
 
 function Overloaded.Funcs.get_original_suit(card)
-    return get_vals(card, 'suit', 'suit')
+    return Overloaded.Funcs.get_vals(card, 'suit', 'suit')
 end
 
 function Overloaded.Funcs.get_original_suits(card)
-    return get_vals(card, 'suits', 'suits')
+    return Overloaded.Funcs.get_vals(card, 'suits', 'suits')
 end
 
 function Overloaded.Funcs.get_original_poker_hand(card)
@@ -607,4 +616,59 @@ function Overloaded.Funcs.override_hand_singular(used_card, target, new_value)
 			end
 		})
 	end
+end
+
+
+function Overloaded.Funcs.get_strength_effect(v, amount, enable_random)
+    local rank_key = v
+    local rank_data = SMODS.Ranks[v]
+	if rank_data then
+		if amount > 0 then
+			for _ = 1, amount do
+				local behavior = rank_data.strength_effect or { fixed = 1, ignore = false, random = false }
+				if behavior.ignore or not next(rank_data.next) then
+					break
+				elseif enable_random and behavior.random then
+					rank_key = pseudorandom_element(
+						rank_data.next,
+						pseudoseed('strength'),
+						{ in_pool = function(key) return SMODS.add_to_pool(SMODS.Ranks[key], { suit = card.base.suit }) end }
+					)
+				else
+					local i = (behavior.fixed and rank_data.next[behavior.fixed]) and behavior.fixed or 1
+					rank_key = rank_data.next[i]
+				end
+				rank_data = SMODS.Ranks[rank_key]
+			end
+		else
+			for _ = 1, -amount do
+				local behavior = rank_data.prev_behavior or { fixed = 1, ignore = false, random = false }
+				if not next(rank_data.prev) or behavior.ignore then
+					break
+				elseif enable_random and behavior.random then
+					rank_key = pseudorandom_element(
+						rank_data.prev,
+						pseudoseed('weakness'),
+						{ in_pool = function(key) return SMODS.add_to_pool(SMODS.Ranks[key], { suit = card.base.suit }) end }
+					)
+				else
+					local i = (behavior.fixed and rank_data.prev[behavior.fixed]) and behavior.fixed or 1
+					rank_key = rank_data.prev[i]
+				end
+				rank_data = SMODS.Ranks[rank_key]
+			end
+		end
+	end
+	return rank_key
+end
+
+function Overloaded.Funcs.create_joker_strange(_area)
+    local overclocked_pass = pseudorandom('overclocked', 1, 5) < 2
+    local card = SMODS.create_card {
+        set = "Joker",
+        rarity = overclocked_pass and "rgol_overclocked" or "rgol_strange",
+        area = _area,
+        key_append = "rgol"
+    }
+	return card
 end

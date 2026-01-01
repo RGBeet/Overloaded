@@ -41,7 +41,7 @@ return {
             G.booster_pack_sparkles:fade(1, 0)
         end,
 		create_card = function(self, card, i)
-            return create_joker_strange(G.pack_cards)
+            return Overloaded.Funcs.create_joker_strange(G.pack_cards)
 		end,
     }
 }

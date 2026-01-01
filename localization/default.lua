@@ -652,6 +652,7 @@ return {
 
 			k_overloadedelemental        = "Elemental Card",
 			b_overloadedelemental_cards  = "Elemental Cards",
+			k_rgol_strange_pack          = "Peculiar Pack",
         },
     }
 }

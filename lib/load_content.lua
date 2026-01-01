@@ -65,6 +65,11 @@ end
 
 Overloaded.JokerIds = {} -- joker ids
 Overloaded.Directories = {
+	['boosters']	= {
+		pass = function()
+			return true
+		end
+	},
 	['jokers'] = {
         pass = function()
             return true

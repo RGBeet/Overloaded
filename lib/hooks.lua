@@ -218,7 +218,8 @@ SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, f
                         })
                     end
                     if data.upgrade == 'mult' then
-                        key, modded_value = Overloaded.Funcs.get_mult_operator_upgrade(key, amount)
+                        key, modded_value = Overloaded.Funcs.get_mult_operator_upgrade(key, modded_value or amount)
+                        print('Key is now',key,'and value is now',modded_value,'.')
                         if key == 'mult' or key == 'mult_mod' or key == 'h_mult' then
                             new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "+", amount = modded_value })
                         elseif key == 'x_mult' or key == 'xmult' or key == 'Xmult_mod' then
@@ -229,7 +230,7 @@ SMODS.calculate_individual_effect = function(effect, scored_card, key, amount, f
                             new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "^^", amount = modded_value })
                         end
                     elseif data.upgrade == 'chips' then
-                        key, modded_value = Overloaded.Funcs.get_chips_operator_upgrade(key, amount)
+                        key, modded_value = Overloaded.Funcs.get_chips_operator_upgrade(key, modded_value or amount)
                         if key == 'chips' or key == 'chip_mod' or key == 'h_chips' then
                             new_message = Overloaded.Funcs.edit_operator_string(effect.message, { operator = "+", amount = modded_value })
                         elseif key == 'x_chips' or key == 'xchips' or key == 'Xchip_mod' then

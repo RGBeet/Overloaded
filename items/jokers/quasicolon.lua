@@ -62,7 +62,7 @@ return {
                 end
                 if
                     other_joker
-                    and (other_joker.config.center.quasicolon_compat
+                    and (other_joker.config.center.demicoloncompat
                     or MadLib.list_matches_one(Overloaded.Lists.QuasicolonVanilla, function(v) return other_joker.config.center.key == 'j_'..v end))
                 then
 				    card.ability.quasi_text = "YES"
@@ -76,6 +76,24 @@ return {
             end
         end,
         calculate = function(self, card, context)
+            if not context.blueprint and context.joker_main and context.cardarea == G.jokers then
+                local index = 0
+                local jokers = card.area or G.jokers
+                for i = 2, (#jokers.cards)-1 do
+                    if jokers.cards[i] == card then index = i+1 end
+                end
+                if index ~= 0 then
+                    local right_card = Overloaded.Funcs.quasi_handle_blueprint(jokers.cards[index], jokers.cards, nil, true)
+                    local result = Overloaded.Funcs.quasi_trigger(right_card, jokers.cards, context)
+                    return result
+                end
+            end
+        end,
+        demicoloncompat = false,
+    }
+}
+--[[
+
             if not context.blueprint then
                 local pass = false
                 local index = 0
@@ -93,7 +111,4 @@ return {
                     return result
                 end
             end
-        end,
-        demicoloncompat = false,
-    }
-}
+]]

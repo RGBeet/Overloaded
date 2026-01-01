@@ -490,14 +490,17 @@ function Overloaded.Funcs.quasi_check_vanilla_joker(card, context, do_secondary_
 end
 
 function Overloaded.Funcs.quasi_check(card, cards, context, do_secondary_check)
-    if not card then return false end
+    if (not card) or context.blueprint then return nil end
     local results
     if card.ability.set == 'Joker' then
-        if context.forcetrigger then return true end -- force trigger chain reaction?
-		local quasi_context = Cryptid.deep_copy(context)
+        --if context.forcetrigger then return true end -- force trigger chain reaction?
+		local quasi_context = MadLib.deep_copy(context)
         card = Overloaded.Funcs.quasi_handle_blueprint(card, cards)
         quasi_context.checktrigger = true
-        results = Overloaded.Funcs.quasi_check_vanilla_joker(card, context, do_secondary_check) or eval_card(card, quasi_context)
+        results = Overloaded.Funcs.quasi_check_vanilla_joker(card, context, do_secondary_check)
+        if results == nil then
+            results = card.config.center.calculate and card.config.center:calculate(card, context)
+        end
         quasi_context = nil
     end
     return results or false
@@ -895,19 +898,21 @@ function Overloaded.Funcs.quasi_trigger_vanilla_joker(card, context, do_extra_ac
 			end
 		})
     elseif key == 'j_dna' then -- dna
-        G.playing_card = (G.playing_card and G.playing_card + 1) or 1
-        local copy_card = copy_card(context.full_hand[1], nil, nil, G.playing_card)
-        copy_card:add_to_deck()
-        G.deck.config.card_limit = G.deck.config.card_limit + 1
-        table.insert(G.playing_cards, copy_card)
-        G.hand:emplace(copy_card)
-        copy_card.states.visible = nil
-        MadLib.event({
-            func = function()
-                copy_card:start_materialize()
-                return true
-            end
-        })
+        if context.full_hand and #context.full_hand == 1 then
+            G.playing_card = (G.playing_card and G.playing_card + 1) or 1
+            local copy_card = copy_card(context.full_hand[1], nil, nil, G.playing_card)
+            copy_card:add_to_deck()
+            G.deck.config.card_limit = G.deck.config.card_limit + 1
+            table.insert(G.playing_cards, copy_card)
+            G.hand:emplace(copy_card)
+            copy_card.states.visible = nil
+            MadLib.event({
+                func = function()
+                    copy_card:start_materialize()
+                    return true
+                end
+            })
+        end
     elseif key == 'j_sixth_sense' then -- sixth sense
 		G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
 		G.E_MANAGER:add_event(Event({
@@ -1040,7 +1045,7 @@ function Overloaded.Funcs.quasi_handle_blueprint(card, cards)
 end
 
 function Overloaded.Funcs.quasi_trigger(card, cards, context, do_extra_actions)
-    if not card then return {} end
+    if (not card) or context.checktrigger then return {} end
     local results
     if card.ability.set == 'Joker' then
         card = Overloaded.Funcs.quasi_handle_blueprint(card, cards)

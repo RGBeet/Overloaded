@@ -1326,7 +1326,7 @@ SMODS.Joker:take_ownership('ancient', {
     config = { extra = 1.5 },
     loc_vars = function(self, info_queue, card)
         local suit = Overloaded.Funcs.get_joker_suit(card, (G.GAME.current_round.ancient_card or {}).suit or 'Spades')
-        return { vars = { card.ability.extra.xmult, localize(suit, 'suits_singular'), colours = { G.C.SUITS[suit] } } }
+        return { vars = { card.ability.extra, localize(suit, 'suits_singular'), colours = { G.C.SUITS[suit] } } }
     end,
     calculate = function(self, card, context)
         if 
